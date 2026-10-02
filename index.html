@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Piano Starter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Newsreader:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1F3;--card:#fff;--ink:#1C2330;--muted:#5B6675;--accent:#2F5D8A;--onaccent:#fff;--hint:#CFE0F1;--good:#2E8B57;--bad:#B3402F;--line:#D5DAE0;--head:'Newsreader',Georgia,serif;--body:system-ui,-apple-system,'Segoe UI',sans-serif;--r:10px;--kw:calc((min(100vw,520px) - 28px)/10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161C;--card:#1B212A;--ink:#E6EAF0;--muted:#9AA5B4;--accent:#7FB2E5;--onaccent:#10151B;--hint:#2A4560;--good:#3FAF78;--bad:#D9604D;--line:#2C3541}}
+:root[data-theme="dark"]{--bg:#12161C;--card:#1B212A;--ink:#E6EAF0;--muted:#9AA5B4;--accent:#7FB2E5;--onaccent:#10151B;--hint:#2A4560;--good:#3FAF78;--bad:#D9604D;--line:#2C3541}
+:root[data-mode="kid"]{--bg:#E6F3FF;--card:#fff;--ink:#23305E;--muted:#55628F;--accent:#FF5C8A;--onaccent:#fff;--hint:#FFE08A;--good:#16A870;--bad:#E5484D;--line:#BFD9F2;--head:'Fredoka','Trebuchet MS',system-ui,sans-serif;--body:'Fredoka','Trebuchet MS',system-ui,sans-serif;--r:22px}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:520px;margin:0 auto;padding:14px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1,h2{font-family:var(--head);margin:0;font-weight:600}
+h1{font-size:26px}h2{font-size:22px}
+.seg{display:flex;border:2px solid var(--accent);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:none;padding:6px 14px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--onaccent)}
+.pick{margin:14px 0}
+.pickbtn{display:block;width:100%;text-align:left;background:var(--card)}
+.plist{margin-top:6px;max-height:50vh;overflow-y:auto;background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:6px}
+.gh{font-weight:600;color:var(--muted);padding:10px 8px 4px}
+.li{display:flex;justify-content:space-between;gap:10px;width:100%;border:0;background:none;padding:10px 8px;border-radius:8px;text-align:left}
+.li[aria-current="true"]{background:var(--hint)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card p{margin:6px 0 0;color:var(--muted)}
+.seq{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.chip{min-width:34px;padding:5px 8px;text-align:center;border:2px solid var(--line);border-radius:var(--r);font-weight:600}
+.chip.now{border-color:var(--accent)}
+.chip.done{background:var(--good);border-color:var(--good);color:#fff}
+.card p.msg{min-height:1.5em;margin:0;color:var(--ink);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+.actions[hidden]{display:none}
+.btn{border:2px solid var(--accent);background:none;border-radius:var(--r);padding:8px 14px;font-weight:600}
+.btn.primary{background:var(--accent);color:var(--onaccent)}
+.nav{display:flex;justify-content:space-between;margin-top:14px}
+.kbwrap{overflow-x:hidden;margin-top:8px}
+.kb{position:relative;display:flex;height:230px;width:calc(var(--kw)*15);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.w,.b{appearance:none;-webkit-appearance:none;padding:0;-webkit-tap-highlight-color:transparent}
+.w{flex:none;width:calc(var(--kw) - 2px);margin:0 1px;background:#fff;color:#2b2f36;border:1px solid #9aa3ad;border-radius:0 0 var(--r) var(--r);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:600}
+.b{position:absolute;top:0;width:calc(var(--kw)*.6);height:60%;background:#1a1a1f;border:0;border-radius:0 0 8px 8px;z-index:2}
+.w:active{transform:translateY(2px)}
+.w.hint{background:var(--hint);color:var(--ink);box-shadow:inset 0 -10px 0 var(--accent)}
+.w.good,.b.good,.w.got{background:var(--good)!important;color:#fff}
+.w.bad,.b.bad{background:var(--bad)!important;color:#fff;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.w.bad,.b.bad{animation:none}}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<h1>Piano Starter</h1>
+<div class="seg" role="group" aria-label="Mode"><button id="mk" aria-pressed="true">Kids</button><button id="ma" aria-pressed="false">Adults</button></div>
+</header>
+<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div></div>
+<section class="card">
+<h2 id="lt"></h2>
+<p id="ld"></p>
+<div class="seq" id="seq"></div>
+<p class="msg" id="msg" aria-live="polite"></p>
+<div class="actions" id="act" hidden></div>
+</section>
+<div class="nav"><button class="btn" id="sl">◀ Lower</button><button class="btn" id="sr">Higher ▶</button></div>
+<div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const NOTES=[['C',261.63],['C♯',277.18],['D',293.66],['D♯',311.13],['E',329.63],['F',349.23],['F♯',369.99],['G',392],['G♯',415.3],['A',440],['A♯',466.16],['B',493.88],['C',523.25],['C♯',554.37],['D',587.33],['D♯',622.25],['E',659.25],['F',698.46],['F♯',739.99],['G',783.99],['G♯',830.61],['A',880],['A♯',932.33],['B',987.77],['C',1046.5]];
+const WHITE=[0,2,4,5,7,9,11,12,14,16,17,19,21,23,24],BLACK=[[1,1],[3,2],[6,4],[8,5],[10,6],[13,8],[15,9],[18,11],[20,12],[22,13]];
+const LESSONS=[
+{t:'Middle C',s:[0],kid:'Tap the glowing key. That note is Middle C!',adult:'Play Middle C: the white key just left of the pair of two black keys.'},
+{t:'C–D–E',s:[0,2,4],kid:'Climb the stairs: tap C, then D, then E.',adult:'Play C, D, E in order, moving up one white key at a time.'},
+{t:'Twinkle',s:[0,0,7,7,9,9,7],kid:'Play the start of Twinkle Twinkle Little Star!',adult:'Play the opening phrase of Twinkle, Twinkle, Little Star.'},
+{t:'Hot Cross Buns',s:[4,2,0,4,2,0,0,0,0,0,2,2,2,2,4,2,0],kid:'Three notes going down, then a bouncy middle. You can do it!',adult:'Play the full tune. It uses only E, D and C, stepping down and back up.'},
+{t:'Mary’s Lamb',s:[4,2,0,2,4,4,4,2,2,2,4,7,7],kid:'Mary had a little lamb! Play the first part.',adult:'Play the opening of Mary Had a Little Lamb. Note the jump from E up to G at the end.'},
+{t:'Row Your Boat',s:[0,0,0,2,4,4,2,4,5,7],kid:'Row, row, row your boat. Play the first line!',adult:'Play the first line of Row, Row, Row Your Boat. It climbs from C up to G.'},
+{t:'Jingle Bells',s:[4,4,4,4,4,4,4,7,0,2,4],kid:'Jingle all the way! Play the chorus.',adult:'Play the chorus of Jingle Bells: repeated E notes, then G, C, D, E.'},
+{t:'Birthday',s:[7,7,9,7,12,11],kid:'Play the first line of Happy Birthday. The jump goes all the way up to the high C!',adult:'Play the first line of Happy Birthday. The fifth note is the high C at the right end of the keyboard.'},
+{t:'Ode to Joy',s:[4,4,5,7,7,5,4,2,0,0,2,4,4,2,2],kid:'A famous tune by Beethoven. Take it one note at a time.',adult:'Play the main theme of Beethoven’s Ode to Joy, moving mostly by step.'},
+{t:'Saints Go Marching',s:[0,4,5,7,0,4,5,7,0,4,5,7,4,0,4,2],kid:'Oh when the saints! Play the first part of this happy tune.',adult:'Play the opening verse: C E F G twice, then C E F G E C E D.'},
+{t:'Amazing Grace',s:[7,12,16,12,16,14,12,9,7],kid:'A gentle, famous tune. Play the first line slowly.',adult:'Play the first line, “Amazing grace, how sweet the sound.” It starts on G, then jumps up to C.'},
+{t:'C major',n:['C major'],s:[[0,4,7]],kid:'Press three glowing keys at once to make a chord!',adult:'A chord is several notes played together. Play C, E and G.'},
+{t:'F major',n:['F major'],s:[[5,9,12]],kid:'Another chord! Tap all three glowing keys.',adult:'Play F, A and the high C together.'},
+{t:'G major',n:['G major'],s:[[2,7,11]],kid:'This chord skips a key between each note.',adult:'Play D, G and B together. This is G major with its notes rearranged to fit the keyboard.'},
+{t:'Minor chords',n:['A minor','D minor'],s:[[0,4,9],[2,5,9]],kid:'Minor chords sound a little sad. Play A minor, then D minor.',adult:'Minor chords have a darker sound. Play A minor (C, E, A), then D minor (D, F, A).'},
+{t:'C–F–G–C',n:['C','F','G','C'],s:[[0,4,7],[5,9,12],[2,7,11],[0,4,7]],kid:'Play four chords in a row. This pattern shows up in lots of songs!',adult:'Play the I–IV–V–I progression in C: C, F, G, C. It underlies countless songs.'},
+{t:'Twinkle + chords',n:['C chord','C','C','G','G','A','A','G','F chord','F','F','E','E','D','D','C','C chord'],s:[[0,4,7],0,0,7,7,9,9,7,[5,9,12],5,5,4,4,2,2,0,[0,4,7]],kid:'Play a chord, then the tune, just like a real song!',adult:'A simple accompaniment: C chord and the first line, then F chord and the second line, ending on a C chord.'},
+{t:'Jingle + chords',n:['C chord','E','E','E','E','E','E','E','G','C','D','E','C chord'],s:[[0,4,7],4,4,4,4,4,4,4,7,0,2,4,[0,4,7]],kid:'Chord first, then the jingle! Finish with a big chord.',adult:'A simple setting: a C chord, the chorus melody, and a closing C chord.'},
+{t:'Two hands: warm-up',n:['C + G','C + A','C + B','C + high C'],s:[[0,7],[0,9],[0,11],[0,12]],kid:'Left hand stays on the low C. Right hand plays the other glowing key. Press both together!',adult:'Keep the left hand on C while the right hand climbs G, A, B and high C. Press each pair together.'},
+{t:'Birthday, two hands',n:['C + G','C + G','F + A','C + G','F + high C','C + B'],s:[[0,7],[0,7],[5,9],[0,7],[5,12],[0,11]],kid:'Left hand plays low notes, right hand plays the song. Two hands at once!',adult:'Left hand plays the bass notes (C, F), right hand plays the melody (G G A G C B).'},
+{t:'Walking bass',n:['C + G','D + G','E + G','F + G','E + G','D + G','C + G'],s:[[0,7],[2,7],[4,7],[5,7],[4,7],[2,7],[0,7]],kid:'Your left hand walks up and down the low keys while your right hand taps G.',adult:'Walk the left hand up C, D, E, F and back while the right hand repeats G. This builds hand independence.'},
+{t:'Twinkle in G',s:[[2,7],7,[2,14],14,[0,16],16,[2,14],[0,12],12,[2,11],11,[2,9],9,[2,7]],kid:'Left hand plays a low note, right hand plays the tune. Two hands at once!',adult:'Twinkle in G: the left hand plays bass notes (D, C) while the right hand plays the melody. Press each pair together.'},
+{t:'Mary in G',s:[[2,11],9,[2,7],9,[0,11],11,11,[2,9],9,9,[2,11],14,14],kid:'Mary had a little lamb, played with two hands!',adult:'Mary Had a Little Lamb in G: bass notes in the left hand, melody in the right.'},
+{t:'Ode in G',s:[[2,11],11,[0,12],14,[2,14],12,[2,11],9,[2,7],7,[0,9],11,[2,11],9,[2,9]],kid:'A famous tune by Beethoven, played with both hands!',adult:'Ode to Joy in G: the left hand plays bass notes (D, C) under the right-hand melody.'}];
+const GROUPS=[['First notes',0],['Songs',3],['Chords',11],['Chords + melody',16],['Two hands',18]];
+let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt;
+
+function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
+g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+1.2);
+o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+1.3)}catch(e){}}
+
+function unlock(){try{try{navigator.audioSession.type='playback'}catch(e){}
+ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume();
+const s=ac.createBufferSource();s.buffer=ac.createBuffer(1,1,22050);s.connect(ac.destination);s.start(0);
+if(ac.state==='running')['touchend','pointerup','click'].forEach(t=>removeEventListener(t,unlock))}catch(e){}}
+['touchend','pointerup','click'].forEach(t=>addEventListener(t,unlock));
+function mk(c,i){const b=document.createElement('button');b.className=c;
+b.setAttribute('aria-label',i===0?'Middle C':i%12?NOTES[i][0]:'C'+(4+i/12));keys[i]=b;
+b.addEventListener('pointerdown',e=>{e.preventDefault();press(i)});
+b.addEventListener('click',e=>{if(e.detail===0)press(i)});return b}
+const kb=$('kb');
+WHITE.forEach(i=>{const b=mk('w',i);b.textContent=i%12?NOTES[i][0]:'C'+(4+i/12);kb.append(b)});
+BLACK.forEach(([i,p])=>{const b=mk('b',i);b.style.left=`calc(var(--kw)*${p} - var(--kw)*.3)`;kb.append(b)});
+
+function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),350)}
+function say(t){$('msg').textContent=t}
+const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
+function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();const L=LESSONS[n],kid=mode==='kid';
+say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
+
+function press(i){tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
+if(done){flash(el,'good');return}
+const grp=[].concat(L.s[step]);
+if(grp.includes(i)){flash(el,'good');got.add(i);
+if(got.size===grp.length){clearTimeout(gt);got.clear();step++;
+if(step===L.s.length){done=true;const s=miss===0?3:miss<3?2:1;stars[cur]=Math.max(stars[cur],s);
+say(kid?`All done! You earned ${'★'.repeat(s)}`:`Lesson complete. ${miss} missed ${miss===1?'note':'notes'}.`)}
+else if(L.s.some(Array.isArray)){const t=[].concat(L.s[step]).length>1?' together':'';say(kid?`Great! Now ${list(L.s[step])}${t}.`:`Correct. Next: ${list(L.s[step])}${t}.`)}
+else say(kid?['Yes!','Nice!','You got it!'][step%3]:'Correct.')}
+else{say(kid?'Good! Add the other glowing keys.':`${grp.length-got.size} more to go.`);clearTimeout(gt);
+gt=setTimeout(()=>{got.clear();say(kid?'Time ran out. Try all the keys again!':'Time ran out. Play the chord again.');render()},2000)}}
+else{miss++;got.clear();clearTimeout(gt);flash(el,'bad');
+say(kid?`Oops, that was ${NOTES[i][0]}. Try the glowing key${grp.length>1?'s':''}!`:`That was ${NOTES[i][0]}. Look for ${list(grp)}.`)}
+render()}
+
+function render(){const L=LESSONS[cur],kid=mode==='kid';
+document.documentElement.dataset.mode=mode;
+$('mk').setAttribute('aria-pressed',kid);$('ma').setAttribute('aria-pressed',!kid);
+const pl=$('pl');pl.innerHTML='';
+LESSONS.forEach((l,n)=>{const g=GROUPS.find(x=>x[1]===n);
+if(g){const h=document.createElement('div');h.className='gh';h.textContent=g[0];pl.append(h)}
+const b=document.createElement('button');b.className='li';if(n===cur)b.setAttribute('aria-current','true');
+b.innerHTML=`<span>${l.t}</span><span>${stars[n]?(kid?'★'.repeat(stars[n]):'✓'):''}</span>`;
+b.onclick=()=>{pl.hidden=true;$('pb').setAttribute('aria-expanded','false');go(n)};pl.append(b)});
+$('pb').textContent=`Lesson ${cur+1} of ${LESSONS.length}: ${L.t} ▾`;
+$('lt').textContent=L.t;$('ld').textContent=kid?L.kid:L.adult;
+$('seq').innerHTML=L.s.map((n,k)=>`<span class="chip ${k<step?'done':k===step&&!done?'now':''}">${L.n?L.n[k]:[].concat(n).map(x=>NOTES[x][0]).join('+')}</span>`).join('');
+Object.values(keys).forEach(k=>k.classList.remove('hint','got'));
+if(!done)[].concat(L.s[step]).forEach(n=>keys[n].classList.add(got.has(n)?'got':'hint'));
+const a=$('act');a.hidden=!done;a.innerHTML='';
+const add=(t,f,p)=>{const b=document.createElement('button');b.className='btn'+(p?' primary':'');b.textContent=t;b.onclick=f;a.append(b)};
+if(done){add('Play again',()=>go(cur));if(cur<LESSONS.length-1)add('Next lesson',()=>go(cur+1),1)}}
+
+$('mk').onclick=()=>{mode='kid';go(cur)};
+$('ma').onclick=()=>{mode='adult';go(cur)};
+const kbw=$('kbw');
+function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=kbw.clientWidth/10;
+kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
+$('pb').onclick=()=>{const p=$('pl'),open=p.hidden;p.hidden=!open;$('pb').setAttribute('aria-expanded',open);if(open)p.querySelector('[aria-current]').scrollIntoView({block:'nearest'})};
+$('sl').onclick=()=>kbw.scrollBy({left:-kbw.clientWidth*.4,behavior:'smooth'});
+$('sr').onclick=()=>kbw.scrollBy({left:kbw.clientWidth*.4,behavior:'smooth'});
+go(0);
+</script>
+</body>
+</html>
