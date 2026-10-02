@@ -33,6 +33,15 @@ h1{font-size:26px}h2{font-size:22px}
 .chip{min-width:34px;padding:5px 8px;text-align:center;border:2px solid var(--line);border-radius:var(--r);font-weight:600}
 .chip.now{border-color:var(--accent)}
 .chip.done{background:var(--good);border-color:var(--good);color:#fff}
+.staff-panel{margin-top:12px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.staff-panel[hidden]{display:none}
+.staff-panel svg{display:block;width:100%;height:auto}
+.staff-line{stroke:var(--muted);stroke-width:1.5}
+.staff-ledger{stroke:var(--ink);stroke-width:1.5}
+.staff-note{fill:var(--accent);stroke:var(--ink);stroke-width:1}
+.staff-note.done{fill:var(--good)}
+.staff-clef{fill:var(--ink);font-family:Georgia,serif;font-size:88px}
+.staff-guide{margin:2px 0 0!important;text-align:center;font-size:13px;color:var(--muted)}
 .card p.msg{min-height:1.5em;margin:0;color:var(--ink);font-weight:600}
 .actions{display:flex;gap:8px;margin-top:10px}
 .actions[hidden]{display:none}
@@ -63,6 +72,20 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <section class="card">
 <h2 id="lt"></h2>
 <p id="ld"></p>
+<div class="staff-panel" id="staffPanel" hidden>
+<svg id="staff" viewBox="0 0 320 170" role="img" aria-label="Treble clef staff">
+<text class="staff-clef" x="12" y="126">𝄞</text>
+<g class="staff-lines">
+<line class="staff-line" x1="70" y1="50" x2="305" y2="50"/>
+<line class="staff-line" x1="70" y1="70" x2="305" y2="70"/>
+<line class="staff-line" x1="70" y1="90" x2="305" y2="90"/>
+<line class="staff-line" x1="70" y1="110" x2="305" y2="110"/>
+<line class="staff-line" x1="70" y1="130" x2="305" y2="130"/>
+</g>
+<g id="staffNotes"></g>
+</svg>
+<p class="staff-guide" id="staffGuide">Lines bottom to top: E G B D F · Spaces: F A C E</p>
+</div>
 <div class="seq" id="seq"></div>
 <p class="msg" id="msg" aria-live="polite"></p>
 <div class="actions" id="act" hidden></div>
@@ -99,7 +122,15 @@ const LESSONS=[
 {t:'Twinkle in G',s:[[2,7],7,[2,14],14,[0,16],16,[2,14],[0,12],12,[2,11],11,[2,9],9,[2,7]],kid:'Left hand plays a low note, right hand plays the tune. Two hands at once!',adult:'Twinkle in G: the left hand plays bass notes (D, C) while the right hand plays the melody. Press each pair together.'},
 {t:'Mary in G',s:[[2,11],9,[2,7],9,[0,11],11,11,[2,9],9,9,[2,11],14,14],kid:'Mary had a little lamb, played with two hands!',adult:'Mary Had a Little Lamb in G: bass notes in the left hand, melody in the right.'},
 {t:'Ode in G',s:[[2,11],11,[0,12],14,[2,14],12,[2,11],9,[2,7],7,[0,9],11,[2,11],9,[2,9]],kid:'A famous tune by Beethoven, played with both hands!',adult:'Ode to Joy in G: the left hand plays bass notes (D, C) under the right-hand melody.'}];
+const THEORY_LESSONS=[
+{t:'Treble staff landmarks',kind:'staff',s:[0,7,12],kid:'The five lines, from bottom to top, are E, G, B, D, F. The spaces spell F, A, C, E. Middle C sits on a little ledger line below. Read each note and play it.',adult:'In treble clef, the lines from bottom to top are E4, G4, B4, D5, F5; the spaces are F4, A4, C5, E5. Middle C is on a ledger line below. Read and play each note.'},
+{t:'Notes around Middle C',kind:'staff',s:[0,2,4,5,7,5,4,2,0],kid:'Read each note on the staff, then find and play it on the piano. The piano will not show you the answer.',adult:'Read each treble-clef note, then play the matching piano key. Use the line-and-space guide; the keyboard will not highlight the answer.'},
+{t:'Read a short melody',kind:'staff',s:[0,2,4,2,0,4,5,7],kid:'Follow the noteheads from left to right. Play each one in order to make a little melody.',adult:'Read the notes from left to right and play them in order. Notice how stepwise movement looks on the staff.'},
+{t:'Intervals: seconds to fifths',kind:'interval',pairs:[[0,2],[0,4],[0,5],[0,7]],s:[0,2,0,4,0,5,0,7],kid:'An interval is the distance between two notes. Read the pair from left to right and play each note. Count both letter names: C to E is a third.',adult:'An interval is the distance between two pitches. Read each ascending pair and play it in order. Count letter names inclusively: C–D is a second, C–E a third, C–F a fourth, and C–G a fifth.'}];
 const GROUPS=[['Beginner',0],['Intermediate',11],['Advanced',18]];
+const THEORY_START=LESSONS.length;
+LESSONS.push(...THEORY_LESSONS);
+GROUPS.push(['Music Theory',THEORY_START]);
 let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt;
 
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
@@ -123,11 +154,20 @@ BLACK.forEach(([i,p])=>{const b=mk('b',i);b.style.left=`calc(var(--kw)*${p} - va
 function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),350)}
 function say(t){$('msg').textContent=t}
 const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
+const noteName=i=>`${NOTES[i][0]}${4+Math.floor(i/12)}`;
 function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();const L=LESSONS[n],kid=mode==='kid';
-say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
+say(L.kind==='interval'?(kid?'Read the pair from left to right, then play both notes in order.':'Read the pair from left to right and play both notes in order.'):L.kind?(kid?'Read the note on the staff, then play it.':'Read the staff, then play the matching note.'):[].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
 function press(i){tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
+if(L.kind){
+if(i===L.s[step]){flash(el,'good');step++;
+if(step===L.s.length){done=true;const s=miss===0?3:miss<3?2:1;stars[cur]=Math.max(stars[cur],s);say(kid?`All done! You earned ${'★'.repeat(s)}`:`Lesson complete. ${miss} missed ${miss===1?'note':'notes'}.`)}
+else if(L.kind==='interval'&&step%2===1){const pair=L.pairs[Math.floor(step/2)];say(`Good. Now play the higher note, ${noteName(pair[1])}.`)}
+else if(L.kind==='interval'){const pair=L.pairs[Math.floor(step/2)-1],distance=WHITE.indexOf(pair[1])-WHITE.indexOf(pair[0]),name=['unison','second','third','fourth','fifth','sixth','seventh','octave'][distance];say(`${noteName(pair[0])} to ${noteName(pair[1])} is a ${name}. Read the next pair.`)}
+else say(kid?`Correct! That note is ${noteName(L.s[step-1])}.`:`Correct: ${noteName(L.s[step-1])}. Read the next note.`)}
+else{miss++;flash(el,'bad');say(kid?'Not that key. Read the note on the staff and try again.':'Not quite. Check the note on the staff and try again.')}
+render();return}
 const grp=[].concat(L.s[step]);
 if(grp.includes(i)){flash(el,'good');got.add(i);
 if(got.size===grp.length){clearTimeout(gt);got.clear();step++;
@@ -150,14 +190,25 @@ if(g){const h=document.createElement('div');h.className='gh';h.textContent=g[0];
 const b=document.createElement('button');b.className='li';if(n===cur)b.setAttribute('aria-current','true');
 b.innerHTML=`<span>${l.t}</span><span>${stars[n]?(kid?'★'.repeat(stars[n]):'✓'):''}</span>`;
 b.onclick=()=>{pl.hidden=true;$('pb').setAttribute('aria-expanded','false');go(n)};pl.append(b)});
-$('pb').textContent=`Lesson ${cur+1} of ${LESSONS.length}: ${L.t} ▾`;
+$('pb').textContent=L.kind?`Music Theory: ${L.t} ▾`:`Lesson ${cur+1} of ${THEORY_START}: ${L.t} ▾`;
 $('lt').textContent=L.t;$('ld').textContent=kid?L.kid:L.adult;
-$('seq').innerHTML=L.s.map((n,k)=>`<span class="chip ${k<step?'done':k===step&&!done?'now':''}">${L.n?L.n[k]:[].concat(n).map(x=>NOTES[x][0]).join('+')}</span>`).join('');
+$('seq').hidden=Boolean(L.kind);
+$('staffPanel').hidden=!L.kind;
+if(L.kind)renderStaff(L);
 Object.values(keys).forEach(k=>k.classList.remove('hint','got'));
-if(!done)[].concat(L.s[step]).forEach(n=>keys[n].classList.add(got.has(n)?'got':'hint'));
+if(!done&&!L.kind)[].concat(L.s[step]).forEach(n=>keys[n].classList.add(got.has(n)?'got':'hint'));
 const a=$('act');a.hidden=!done;a.innerHTML='';
 const add=(t,f,p)=>{const b=document.createElement('button');b.className='btn'+(p?' primary':'');b.textContent=t;b.onclick=f;a.append(b)};
 if(done){add('Play again',()=>go(cur));if(cur<LESSONS.length-1)add('Next lesson',()=>go(cur+1),1)}}
+
+function renderStaff(L){const group=$('staffNotes');group.replaceChildren();const svg='http://www.w3.org/2000/svg';
+const notes=L.kind==='interval'?L.pairs[Math.min(Math.floor(step/2),L.pairs.length-1)]:[L.s[Math.min(step,L.s.length-1)]];
+const labels=notes.map(n=>noteName(n));
+notes.forEach((n,k)=>{const diatonic=WHITE.indexOf(n),y=150-diatonic*10,x=notes.length===1?195:165+k*70;
+if(diatonic===0||diatonic===12){const line=document.createElementNS(svg,'line');line.setAttribute('class','staff-ledger');line.setAttribute('x1',String(x-15));line.setAttribute('x2',String(x+15));line.setAttribute('y1',String(y));line.setAttribute('y2',String(y));group.append(line)}
+const head=document.createElementNS(svg,'ellipse');head.setAttribute('class',`staff-note${L.kind==='interval'&&step%2===1&&k===0?' done':''}`);head.setAttribute('cx',String(x));head.setAttribute('cy',String(y));head.setAttribute('rx','10');head.setAttribute('ry','7');head.setAttribute('transform',`rotate(-20 ${x} ${y})`);group.append(head)});
+$('staff').setAttribute('aria-label',L.kind==='interval'?`Treble staff showing ${labels[0]} and ${labels[1]}, read from left to right`:`Treble staff showing one note${step===0?'':' in the next position'}`);
+$('staffGuide').textContent=L.kind==='interval'?'Read the notes from left to right · Lines: E G B D F · Spaces: F A C E':'Lines bottom to top: E G B D F · Spaces: F A C E';}
 
 $('mk').onclick=()=>{mode='kid';go(cur)};
 $('ma').onclick=()=>{mode='adult';go(cur)};
