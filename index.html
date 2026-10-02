@@ -82,11 +82,11 @@ h1{font-size:26px}h2{font-size:22px}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.w.bad,.b.bad{animation:none}}
 @media (min-width:760px){
-.app{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-rows:auto auto minmax(230px,1fr) auto;grid-template-areas:"header header" "pick pick" "card keyboard" "card nav";align-content:stretch;column-gap:clamp(20px,3vw,36px);row-gap:0}
-.card{align-self:stretch}
+.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(300px,1fr);grid-template-areas:"header" "pick" "card" "nav" "keyboard";align-content:stretch;row-gap:0}
+.card{align-self:start}
 .nav{align-self:end}
 .kbwrap{align-self:end}
-.kb{height:clamp(230px,40vh,360px)}
+.kb{height:clamp(300px,48vh,420px)}
 }
 </style>
 </head>
