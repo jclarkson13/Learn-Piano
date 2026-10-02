@@ -8,6 +8,7 @@ A single-page piano lesson app for kids and adult beginners. No build step, no d
 - Kids and Adults modes (different look, wording, and rewards)
 - Lessons grouped by skill level: Beginner, Intermediate, and Advanced
 - Music Theory path introducing treble-staff reading and intervals
+- Circle of Fifths path for ascending fifths, key relationships, and signatures
 - Chords and two-hand steps: press every glowing key within about two seconds
 - Star ratings per lesson, based on missed notes
 
@@ -30,4 +31,11 @@ Open `index.html` in any modern browser, including Safari on iPhone and iPad.
 
 ## Adding lessons
 
-Piano lessons live in the `LESSONS` array in `index.html`. Each lesson has a title (`t`), a list of steps (`s`), and text for kids and adults. A step is a note number (0 = middle C, counting in semitones) or a list of numbers for keys pressed together. Music Theory lessons are defined in `THEORY_LESSONS`; `kind: 'staff'` exercises ask learners to read single notes, while `kind: 'interval'` exercises show note pairs and ask learners to play them in order. Lesson-list sections are set by the `GROUPS` array.
+Piano lessons live in the `LESSONS` array in `index.html`. Each lesson has a title (`t`), a list of steps (`s`), and text for kids and adults. A step is a note number (0 = middle C, counting in semitones) or a list of numbers for keys pressed together. Music Theory lessons are defined in `THEORY_LESSONS`; `kind: 'staff'` exercises ask learners to read single notes, while `kind: 'interval'` exercises show note pairs and ask learners to play them in order. Circle of Fifths lessons are defined in `CIRCLE_LESSONS`.
+
+The current Circle of Fifths path covers ascending fifths, clockwise/counterclockwise key movement, and signatures for C, G, D, F, and B-flat major.
+
+## Planned Circle of Fifths lessons
+
+- **Lesson 4: Relative major and minor.** Pair C major with A minor, G major with E minor, and F major with D minor. Explain that each pair shares a key signature, locate the relative minor three scale steps below its major, and let learners play both tonic triads.
+- **Lesson 5: Chord progressions.** Use the circle to find neighboring I, IV, and V chords. Play I–IV–V–I in C (C–F–G–C), then G (G–C–D–G), and ask learners to identify the home chord. Add chord inversions only as an optional challenge.

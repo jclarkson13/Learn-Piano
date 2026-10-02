@@ -42,6 +42,20 @@ h1{font-size:26px}h2{font-size:22px}
 .staff-note.done{fill:var(--good)}
 .staff-clef{fill:var(--ink);font-family:Georgia,serif;font-size:88px}
 .staff-guide{margin:2px 0 0!important;text-align:center;font-size:13px;color:var(--muted)}
+.circle-panel{margin-top:12px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.circle-panel[hidden]{display:none}
+.circle-panel svg{display:block;width:100%;height:auto}
+.circle-ring{fill:none;stroke:var(--line);stroke-width:2}
+.circle-node{fill:var(--card);stroke:var(--line);stroke-width:2}
+.circle-node.current{fill:var(--hint);stroke:var(--accent);stroke-width:3}
+.circle-node.target{fill:var(--good);stroke:var(--ink);stroke-width:2}
+.circle-label{fill:var(--ink);font:600 13px system-ui,sans-serif;text-anchor:middle;dominant-baseline:central}
+.circle-direction{fill:var(--muted);font:12px system-ui,sans-serif;text-anchor:middle}
+.circle-question{margin:4px 0 8px!important;text-align:center;color:var(--ink)!important;font-weight:600}
+.circle-choices{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.circle-choices[hidden]{display:none}
+.circle-choice{border:2px solid var(--line);background:var(--card);border-radius:var(--r);padding:7px 10px;font-weight:600}
+.circle-choice:hover,.circle-choice:focus-visible{border-color:var(--accent)}
 .card p.msg{min-height:1.5em;margin:0;color:var(--ink);font-weight:600}
 .actions{display:flex;gap:8px;margin-top:10px}
 .actions[hidden]{display:none}
@@ -85,6 +99,16 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <g id="staffNotes"></g>
 </svg>
 <p class="staff-guide" id="staffGuide">Lines bottom to top: E G B D F · Spaces: F A C E</p>
+</div>
+<div class="circle-panel" id="circlePanel" hidden>
+<svg id="circleChart" viewBox="0 0 360 300" role="img" aria-label="Circle of fifths">
+<circle class="circle-ring" cx="180" cy="145" r="108"/>
+<g id="circleNodes"></g>
+<text class="circle-direction" x="180" y="18">CLOCKWISE · UP A FIFTH</text>
+<text class="circle-direction" x="180" y="286">COUNTERCLOCKWISE · UP A FOURTH</text>
+</svg>
+<p class="circle-question" id="circleQuestion"></p>
+<div class="circle-choices" id="circleChoices"></div>
 </div>
 <div class="seq" id="seq"></div>
 <p class="msg" id="msg" aria-live="polite"></p>
@@ -131,7 +155,29 @@ const GROUPS=[['Beginner',0],['Intermediate',11],['Advanced',18]];
 const THEORY_START=LESSONS.length;
 LESSONS.push(...THEORY_LESSONS);
 GROUPS.push(['Music Theory',THEORY_START]);
-let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt;
+const CIRCLE_KEYS=['C','G','D','A','E','B','F♯','D♭','A♭','E♭','B♭','F'];
+const CIRCLE_PITCHES=[0,7,2,9,4,11,6,1,8,3,10,5];
+const CIRCLE_LESSONS=[
+{t:'A fifth from C',kind:'circlePlay',s:[0,7,7,14,14,21],kid:'Moving clockwise jumps up a fifth. Follow each pair around the circle, then play the two notes in order.',adult:'Clockwise motion is an ascending perfect fifth (seven semitones). Follow C–G, G–D, and D–A around the circle; play each pair in order.'},
+{t:'Travel around the circle',kind:'circleQuiz',quiz:'direction',questions:[
+{from:0,to:1,dir:'clockwise',answer:'G',options:['G','F','D'],note:7},
+{from:1,to:2,dir:'clockwise',answer:'D',options:['D','C','A'],note:2},
+{from:2,to:3,dir:'clockwise',answer:'A',options:['A','G','F'],note:9},
+{from:0,to:11,dir:'counterclockwise',answer:'F',options:['F','G','B♭'],note:5},
+{from:11,to:10,dir:'counterclockwise',answer:'B♭',options:['B♭','C','E♭'],note:10},
+{from:10,to:9,dir:'counterclockwise',answer:'E♭',options:['E♭','F','A♭'],note:3}],
+kid:'Clockwise goes up a fifth; counterclockwise goes up a fourth. Pick the next key in the named direction, then play its home note.',adult:'Clockwise advances by a perfect fifth and adds a sharp; counterclockwise advances by a perfect fourth and adds a flat. Identify each next key, then play its tonic.'},
+{t:'Key signatures on the circle',kind:'circleQuiz',quiz:'signature',questions:[
+{key:'C',at:0,answer:'No sharps or flats',options:['No sharps or flats','1 sharp: F♯','1 flat: B♭'],note:0},
+{key:'G',at:1,answer:'1 sharp: F♯',options:['1 sharp: F♯','2 sharps: F♯, C♯','1 flat: B♭'],note:7},
+{key:'D',at:2,answer:'2 sharps: F♯, C♯',options:['2 sharps: F♯, C♯','1 sharp: F♯','3 sharps: F♯, C♯, G♯'],note:2},
+{key:'F',at:11,answer:'1 flat: B♭',options:['1 flat: B♭','2 flats: B♭, E♭','No sharps or flats'],note:5},
+{key:'B♭',at:10,answer:'2 flats: B♭, E♭',options:['2 flats: B♭, E♭','1 flat: B♭','3 flats: B♭, E♭, A♭'],note:10}],
+kid:'Each step clockwise adds one sharp; each step counterclockwise adds one flat. Choose the key signature, then play that key’s home note.',adult:'Clockwise adds sharps in the order F–C–G–D–A–E–B; counterclockwise adds flats B–E–A–D–G–C–F. Match each key to its signature, then play its tonic.'}];
+const CIRCLE_START=LESSONS.length;
+LESSONS.push(...CIRCLE_LESSONS);
+GROUPS.push(['Circle of Fifths',CIRCLE_START]);
+let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt,circleQ=0,circlePhase='choice';
 
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
 const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
@@ -144,7 +190,7 @@ const s=ac.createBufferSource();s.buffer=ac.createBuffer(1,1,22050);s.connect(ac
 if(ac.state==='running')['touchend','pointerup','click'].forEach(t=>removeEventListener(t,unlock))}catch(e){}}
 ['touchend','pointerup','click'].forEach(t=>addEventListener(t,unlock));
 function mk(c,i){const b=document.createElement('button');b.className=c;
-b.setAttribute('aria-label',i===0?'Middle C':i%12?NOTES[i][0]:'C'+(4+i/12));keys[i]=b;
+b.dataset.note=`${NOTES[i][0]}${4+Math.floor(i/12)}`;b.setAttribute('aria-label',b.dataset.note);keys[i]=b;
 b.addEventListener('pointerdown',e=>{e.preventDefault();press(i)});
 b.addEventListener('click',e=>{if(e.detail===0)press(i)});return b}
 const kb=$('kb');
@@ -155,11 +201,26 @@ function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),3
 function say(t){$('msg').textContent=t}
 const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
 const noteName=i=>`${NOTES[i][0]}${4+Math.floor(i/12)}`;
-function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();const L=LESSONS[n],kid=mode==='kid';
-say(L.kind==='interval'?(kid?'Read the pair from left to right, then play both notes in order.':'Read the pair from left to right and play both notes in order.'):L.kind?(kid?'Read the note on the staff, then play it.':'Read the staff, then play the matching note.'):[].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
+const circleNoteName=i=>`${({1:'D♭',3:'E♭',8:'A♭',10:'B♭'})[i%12]||NOTES[i][0]}${4+Math.floor(i/12)}${[1,3,8,10].includes(i%12)?` (same key as ${noteName(i)})`:''}`;
+function go(n){cur=n;step=0;circleQ=0;circlePhase='choice';miss=0;done=false;clearTimeout(gt);got.clear();const L=LESSONS[n],kid=mode==='kid';
+say(L.kind==='circlePlay'?(kid?'Follow the circle and play each pair of notes.':'Follow the circle and play each ascending-fifth pair.'):L.kind==='circleQuiz'?(kid?'Look at the circle, choose an answer, then play the key.':'Use the circle to answer each question, then play the tonic.'):L.kind==='interval'?(kid?'Read the pair from left to right, then play both notes in order.':'Read the pair from left to right and play both notes in order.'):L.kind?(kid?'Read the note on the staff, then play it.':'Read the staff, then play the matching note.'):[].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
 function press(i){tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
+if(L.kind==='circlePlay'){
+if(i===L.s[step]){flash(el,'good');step++;
+if(step===L.s.length){done=true;const s=miss===0?3:miss<3?2:1;stars[cur]=Math.max(stars[cur],s);say(kid?`All done! You earned ${'★'.repeat(s)}`:`Lesson complete. ${miss} missed ${miss===1?'note':'notes'}.`)}
+else say(`Good. Now play ${noteName(L.s[step])}.`)}
+else{miss++;flash(el,'bad');say(`Not quite. Follow the highlighted circle pair and try ${noteName(L.s[step])}.`)}
+render();return}
+if(L.kind==='circleQuiz'){
+if(circlePhase!=='note')return;
+const q=L.questions[circleQ];
+if(i===q.note){flash(el,'good');circleQ++;circlePhase='choice';
+if(circleQ===L.questions.length){done=true;const s=miss===0?3:miss<3?2:1;stars[cur]=Math.max(stars[cur],s);say(kid?`All done! You earned ${'★'.repeat(s)}`:`Lesson complete. ${miss} missed ${miss===1?'note':'notes'}.`)}
+else say('Correct. Choose the next answer on the circle.')}
+else{miss++;flash(el,'bad');say(`Not that tonic. Try ${circleNoteName(q.note)}.`)}
+render();return}
 if(L.kind){
 if(i===L.s[step]){flash(el,'good');step++;
 if(step===L.s.length){done=true;const s=miss===0?3:miss<3?2:1;stars[cur]=Math.max(stars[cur],s);say(kid?`All done! You earned ${'★'.repeat(s)}`:`Lesson complete. ${miss} missed ${miss===1?'note':'notes'}.`)}
@@ -190,16 +251,38 @@ if(g){const h=document.createElement('div');h.className='gh';h.textContent=g[0];
 const b=document.createElement('button');b.className='li';if(n===cur)b.setAttribute('aria-current','true');
 b.innerHTML=`<span>${l.t}</span><span>${stars[n]?(kid?'★'.repeat(stars[n]):'✓'):''}</span>`;
 b.onclick=()=>{pl.hidden=true;$('pb').setAttribute('aria-expanded','false');go(n)};pl.append(b)});
-$('pb').textContent=L.kind?`Music Theory: ${L.t} ▾`:`Lesson ${cur+1} of ${THEORY_START}: ${L.t} ▾`;
+const circle=L.kind==='circlePlay'||L.kind==='circleQuiz';
+$('pb').textContent=circle?`Circle of Fifths: ${L.t} ▾`:L.kind?`Music Theory: ${L.t} ▾`:`Lesson ${cur+1} of ${THEORY_START}: ${L.t} ▾`;
 $('lt').textContent=L.t;$('ld').textContent=kid?L.kid:L.adult;
 $('seq').hidden=Boolean(L.kind);
-$('staffPanel').hidden=!L.kind;
-if(L.kind)renderStaff(L);
+$('staffPanel').hidden=!(L.kind==='staff'||L.kind==='interval');
+$('circlePanel').hidden=!circle;
+if(L.kind==='staff'||L.kind==='interval')renderStaff(L);
+if(circle)renderCircle(L);
 Object.values(keys).forEach(k=>k.classList.remove('hint','got'));
 if(!done&&!L.kind)[].concat(L.s[step]).forEach(n=>keys[n].classList.add(got.has(n)?'got':'hint'));
 const a=$('act');a.hidden=!done;a.innerHTML='';
 const add=(t,f,p)=>{const b=document.createElement('button');b.className='btn'+(p?' primary':'');b.textContent=t;b.onclick=f;a.append(b)};
 if(done){add('Play again',()=>go(cur));if(cur<LESSONS.length-1)add('Next lesson',()=>go(cur+1),1)}}
+
+function chooseCircle(answer){const L=LESSONS[cur],q=L.questions[circleQ];if(answer!==q.answer){miss++;say('Not quite. Look at the direction or key-signature clue and try again.');return}
+circlePhase='note';say(`Correct: ${q.answer}. Now play ${circleNoteName(q.note)}.`);render()}
+
+function renderCircle(L){const group=$('circleNodes'),svg='http://www.w3.org/2000/svg';group.replaceChildren();
+let current=-1,target=-1,q=null;
+if(L.kind==='circlePlay'){const pair=Math.min(Math.floor(step/2),L.s.length/2-1);current=CIRCLE_PITCHES.indexOf(L.s[pair*2]%12);target=CIRCLE_PITCHES.indexOf(L.s[pair*2+1]%12)}
+else{q=L.questions[Math.min(circleQ,L.questions.length-1)];current=L.quiz==='direction'?q.from:q.at;if(circlePhase==='note')target=L.quiz==='direction'?q.to:q.at}
+CIRCLE_KEYS.forEach((key,n)=>{const angle=n*Math.PI/6,x=180+112*Math.sin(angle),y=145-100*Math.cos(angle),isCurrent=n===current,isTarget=n===target;
+const dot=document.createElementNS(svg,'circle');dot.setAttribute('class',`circle-node${isCurrent?' current':''}${isTarget?' target':''}`);dot.setAttribute('cx',String(x));dot.setAttribute('cy',String(y));dot.setAttribute('r','19');group.append(dot);
+const label=document.createElementNS(svg,'text');label.setAttribute('class','circle-label');label.setAttribute('x',String(x));label.setAttribute('y',String(y));label.textContent=key;group.append(label)});
+const choices=$('circleChoices');choices.replaceChildren();choices.hidden=true;
+if(L.kind==='circlePlay')$('circleQuestion').textContent=done?'Three ascending fifths complete.':step%2?`Now play ${noteName(L.s[step])}.`:`Play ${noteName(L.s[step])}, then ${noteName(L.s[step+1])}.`;
+else if(L.kind==='circleQuiz'&&circlePhase==='choice'){
+if(L.quiz==='direction')$('circleQuestion').textContent=`From ${CIRCLE_KEYS[q.from]}, move ${q.dir}. Which key comes next?`;
+else $('circleQuestion').textContent=`What key signature belongs to ${q.key} major?`;
+q.options.forEach(option=>{const button=document.createElement('button');button.type='button';button.className='circle-choice';button.textContent=option;button.onclick=()=>chooseCircle(option);choices.append(button)});choices.hidden=false}
+else if(L.kind==='circleQuiz')$('circleQuestion').textContent=`Correct: ${q.answer}. Now play ${circleNoteName(q.note)}.`;
+$('circleChart').setAttribute('aria-label',`Circle of fifths. ${CIRCLE_KEYS.join(', ')} clockwise.`)}
 
 function renderStaff(L){const group=$('staffNotes');group.replaceChildren();const svg='http://www.w3.org/2000/svg';
 const notes=L.kind==='interval'?L.pairs[Math.min(Math.floor(step/2),L.pairs.length-1)]:[L.s[Math.min(step,L.s.length-1)]];
@@ -213,7 +296,7 @@ $('staffGuide').textContent=L.kind==='interval'?'Read the notes from left to rig
 $('mk').onclick=()=>{mode='kid';go(cur)};
 $('ma').onclick=()=>{mode='adult';go(cur)};
 const kbw=$('kbw');
-function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=kbw.clientWidth/10;
+function view(){const L=LESSONS[cur],a=L.s?L.s.flat():L.kind==='circleQuiz'?L.questions.map(q=>q.note):[];if(!a.length)return;const w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=kbw.clientWidth/10;
 kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
 $('pb').onclick=()=>{const p=$('pl'),open=p.hidden;p.hidden=!open;$('pb').setAttribute('aria-expanded',open);if(open)p.querySelector('[aria-current]').scrollIntoView({block:'nearest'})};
 $('sl').onclick=()=>kbw.scrollBy({left:-kbw.clientWidth*.4,behavior:'smooth'});
