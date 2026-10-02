@@ -5,6 +5,7 @@ A single-page piano lesson app for kids and adult beginners. No build step, no d
 ## Features
 
 - Two-octave on-screen keyboard (C4 to C6) with Web Audio sound
+- Responsive layout that reflows for narrow and wide browser windows
 - Kids and Adults modes (different look, wording, and rewards)
 - Lessons grouped by skill level: Beginner, Intermediate, and Advanced
 - Music Theory path introducing treble-staff reading and intervals
