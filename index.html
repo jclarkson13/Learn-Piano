@@ -7,19 +7,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Newsreader:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#EEF1F3;--card:#fff;--ink:#1C2330;--muted:#5B6675;--accent:#2F5D8A;--onaccent:#fff;--hint:#CFE0F1;--good:#2E8B57;--bad:#B3402F;--line:#D5DAE0;--head:'Newsreader',Georgia,serif;--body:system-ui,-apple-system,'Segoe UI',sans-serif;--r:10px;--kw:calc((min(100vw,520px) - 28px)/10);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#EEF1F3;--card:#fff;--ink:#1C2330;--muted:#5B6675;--accent:#2F5D8A;--onaccent:#fff;--hint:#CFE0F1;--good:#2E8B57;--bad:#B3402F;--line:#D5DAE0;--head:'Newsreader',Georgia,serif;--body:system-ui,-apple-system,'Segoe UI',sans-serif;--r:10px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161C;--card:#1B212A;--ink:#E6EAF0;--muted:#9AA5B4;--accent:#7FB2E5;--onaccent:#10151B;--hint:#2A4560;--good:#3FAF78;--bad:#D9604D;--line:#2C3541}}
 :root[data-theme="dark"]{--bg:#12161C;--card:#1B212A;--ink:#E6EAF0;--muted:#9AA5B4;--accent:#7FB2E5;--onaccent:#10151B;--hint:#2A4560;--good:#3FAF78;--bad:#D9604D;--line:#2C3541}
 :root[data-mode="kid"]{--bg:#E6F3FF;--card:#fff;--ink:#23305E;--muted:#55628F;--accent:#FF5C8A;--onaccent:#fff;--hint:#FFE08A;--good:#16A870;--bad:#E5484D;--line:#BFD9F2;--head:'Fredoka','Trebuchet MS',system-ui,sans-serif;--body:'Fredoka','Trebuchet MS',system-ui,sans-serif;--r:22px}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
 button{font:inherit;color:inherit;cursor:pointer}
-.app{box-sizing:border-box;width:min(100%,1120px);min-height:100vh;min-height:100svh;margin:0 auto;padding:clamp(12px,2vw,24px);display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"header" "pick" "card" "nav" "keyboard";align-content:start}
+.app{box-sizing:border-box;width:min(100%,1120px);min-height:100vh;min-height:100svh;margin:0 auto;padding:clamp(12px,2vw,24px);display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"header" "pick" "card" "keyboard";align-content:start}
 header{grid-area:header;min-width:0}
 .pick{grid-area:pick;min-width:0}
 .card{grid-area:card;min-width:0}
-.nav{grid-area:nav;min-width:0}
-.kbwrap{grid-area:keyboard;min-width:0;width:100%;container-type:inline-size;--kw:10cqw}
+.kbwrap{grid-area:keyboard;min-width:0;width:100%;container-type:inline-size;--kw:calc(100cqw / 15)}
 header{display:flex;justify-content:space-between;align-items:center;gap:10px}
 h1,h2{font-family:var(--head);margin:0;font-weight:600}
 h1{font-size:26px}h2{font-size:22px}
@@ -66,11 +65,11 @@ h1{font-size:26px}h2{font-size:22px}
 .actions[hidden]{display:none}
 .btn{border:2px solid var(--accent);background:none;border-radius:var(--r);padding:8px 14px;font-weight:600}
 .btn.primary{background:var(--accent);color:var(--onaccent)}
-.nav{display:flex;justify-content:space-between;margin-top:14px}
-.kbwrap{overflow-x:hidden;margin-top:8px}
-.kb{position:relative;display:flex;height:clamp(170px,35vw,280px);width:calc(var(--kw)*15);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.kbwrap{overflow:hidden;margin-top:8px}
+.kb{position:relative;display:flex;height:clamp(170px,35vw,280px);width:100%;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .w,.b{appearance:none;-webkit-appearance:none;padding:0;-webkit-tap-highlight-color:transparent}
-.w{flex:none;width:calc(var(--kw) - 2px);margin:0 1px;background:#fff;color:#2b2f36;border:1px solid #9aa3ad;border-radius:0 0 var(--r) var(--r);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:600}
+.w,.b{box-sizing:border-box}
+.w{flex:none;width:var(--kw);margin:0;background:#fff;color:#2b2f36;border:1px solid #9aa3ad;border-radius:0 0 var(--r) var(--r);display:flex;align-items:flex-end;justify-content:center;padding-bottom:clamp(6px,1vh,10px);font-size:clamp(9px,1.5vw,16px);font-weight:600}
 .b{position:absolute;top:0;width:calc(var(--kw)*.6);height:60%;background:#1a1a1f;border:0;border-radius:0 0 8px 8px;z-index:2}
 .w:active{transform:translateY(2px)}
 .actions{flex-wrap:wrap}
@@ -82,11 +81,10 @@ h1{font-size:26px}h2{font-size:22px}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.w.bad,.b.bad{animation:none}}
 @media (min-width:760px){
-.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto minmax(300px,1fr);grid-template-areas:"header" "pick" "card" "nav" "keyboard";align-content:stretch;row-gap:0}
+.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto minmax(300px,1fr);grid-template-areas:"header" "pick" "card" "keyboard";align-content:stretch;row-gap:0}
 .card{align-self:start}
-.nav{align-self:end}
 .kbwrap{align-self:end}
-.kb{height:clamp(300px,48vh,420px)}
+.kb{height:clamp(250px,42vh,360px)}
 }
 </style>
 </head>
@@ -128,7 +126,6 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <p class="msg" id="msg" aria-live="polite"></p>
 <div class="actions" id="act" hidden></div>
 </section>
-<div class="nav"><button class="btn" id="sl">◀ Lower</button><button class="btn" id="sr">Higher ▶</button></div>
 <div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div>
 </main>
 <script>
@@ -217,7 +214,7 @@ const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
 const noteName=i=>`${NOTES[i][0]}${4+Math.floor(i/12)}`;
 const circleNoteName=i=>`${({1:'D♭',3:'E♭',8:'A♭',10:'B♭'})[i%12]||NOTES[i][0]}${4+Math.floor(i/12)}${[1,3,8,10].includes(i%12)?` (same key as ${noteName(i)})`:''}`;
 function go(n){cur=n;step=0;circleQ=0;circlePhase='choice';miss=0;done=false;clearTimeout(gt);got.clear();const L=LESSONS[n],kid=mode==='kid';
-say(L.kind==='circlePlay'?(kid?'Follow the circle and play each pair of notes.':'Follow the circle and play each ascending-fifth pair.'):L.kind==='circleQuiz'?(kid?'Look at the circle, choose an answer, then play the key.':'Use the circle to answer each question, then play the tonic.'):L.kind==='interval'?(kid?'Read the pair from left to right, then play both notes in order.':'Read the pair from left to right and play both notes in order.'):L.kind?(kid?'Read the note on the staff, then play it.':'Read the staff, then play the matching note.'):[].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
+say(L.kind==='circlePlay'?(kid?'Follow the circle and play each pair of notes.':'Follow the circle and play each ascending-fifth pair.'):L.kind==='circleQuiz'?(kid?'Look at the circle, choose an answer, then play the key.':'Use the circle to answer each question, then play the tonic.'):L.kind==='interval'?(kid?'Read the pair from left to right, then play both notes in order.':'Read the pair from left to right and play both notes in order.'):L.kind?(kid?'Read the note on the staff, then play it.':'Read the staff, then play the matching note.'):[].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render()}
 
 function press(i){tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
@@ -309,12 +306,7 @@ $('staffGuide').textContent=L.kind==='interval'?'Read the notes from left to rig
 
 $('mk').onclick=()=>{mode='kid';go(cur)};
 $('ma').onclick=()=>{mode='adult';go(cur)};
-const kbw=$('kbw');
-function view(){const L=LESSONS[cur],a=L.s?L.s.flat():L.kind==='circleQuiz'?L.questions.map(q=>q.note):[];if(!a.length)return;const w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=kbw.clientWidth/10;
-kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
 $('pb').onclick=()=>{const p=$('pl'),open=p.hidden;p.hidden=!open;$('pb').setAttribute('aria-expanded',open);if(open)p.querySelector('[aria-current]').scrollIntoView({block:'nearest'})};
-$('sl').onclick=()=>kbw.scrollBy({left:-kbw.clientWidth*.4,behavior:'smooth'});
-$('sr').onclick=()=>kbw.scrollBy({left:kbw.clientWidth*.4,behavior:'smooth'});
 go(0);
 </script>
 </body>
