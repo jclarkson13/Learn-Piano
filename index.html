@@ -99,7 +99,7 @@ const LESSONS=[
 {t:'Twinkle in G',s:[[2,7],7,[2,14],14,[0,16],16,[2,14],[0,12],12,[2,11],11,[2,9],9,[2,7]],kid:'Left hand plays a low note, right hand plays the tune. Two hands at once!',adult:'Twinkle in G: the left hand plays bass notes (D, C) while the right hand plays the melody. Press each pair together.'},
 {t:'Mary in G',s:[[2,11],9,[2,7],9,[0,11],11,11,[2,9],9,9,[2,11],14,14],kid:'Mary had a little lamb, played with two hands!',adult:'Mary Had a Little Lamb in G: bass notes in the left hand, melody in the right.'},
 {t:'Ode in G',s:[[2,11],11,[0,12],14,[2,14],12,[2,11],9,[2,7],7,[0,9],11,[2,11],9,[2,9]],kid:'A famous tune by Beethoven, played with both hands!',adult:'Ode to Joy in G: the left hand plays bass notes (D, C) under the right-hand melody.'}];
-const GROUPS=[['First notes',0],['Songs',3],['Chords',11],['Chords + melody',16],['Two hands',18]];
+const GROUPS=[['Beginner',0],['Intermediate',11],['Advanced',18]];
 let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt;
 
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();

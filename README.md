@@ -6,7 +6,7 @@ A single-page piano lesson app for kids and adult beginners. No build step, no d
 
 - Two-octave on-screen keyboard (C4 to C6) with Web Audio sound
 - Kids and Adults modes (different look, wording, and rewards)
-- Grouped lesson list: first notes, songs, chords, chords + melody, and two-hand lessons
+- Lessons grouped by skill level: Beginner, Intermediate, and Advanced
 - Chords and two-hand steps: press every glowing key within about two seconds
 - Star ratings per lesson, based on missed notes
 
@@ -29,4 +29,4 @@ Open `index.html` in any modern browser, including Safari on iPhone and iPad.
 
 ## Adding lessons
 
-Lessons live in the `LESSONS` array in `index.html`. Each lesson has a title (`t`), a list of steps (`s`), and text for kids and adults. A step is a note number (0 = middle C, counting in semitones) or a list of numbers for keys pressed together. Lesson groups in the list are set by the `GROUPS` array, using each group's starting position.
+Lessons live in the `LESSONS` array in `index.html`. Each lesson has a title (`t`), a list of steps (`s`), and text for kids and adults. A step is a note number (0 = middle C, counting in semitones) or a list of numbers for keys pressed together. Skill-level groups in the lesson list are set by the `GROUPS` array, using each group's starting position.
