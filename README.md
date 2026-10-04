@@ -4,7 +4,7 @@ A single-page piano lesson app for kids and adult beginners. No build step, no d
 
 ## Features
 
-- Two-octave on-screen keyboard (C4 to C6) with Web Audio sound
+- Two-octave on-screen keyboard (C4 to C6) with Web Audio sound. On phones it shows about ten white keys with Lower/Higher buttons; on tablets and wide screens (700 px and up) both octaves fit with taller keys and no scrolling
 - Kids and Adults modes (different look, wording, and rewards)
 - Grouped lesson list: first notes, songs, chords, chords + melody, and two-hand lessons
 - Chords and two-hand steps: press every glowing key within about two seconds

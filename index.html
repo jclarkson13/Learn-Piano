@@ -14,7 +14,7 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
 button{font:inherit;color:inherit;cursor:pointer}
-.app{max-width:520px;margin:0 auto;padding:14px}
+.app{box-sizing:border-box;max-width:520px;margin:0 auto;padding:14px}
 header{display:flex;justify-content:space-between;align-items:center;gap:10px}
 h1,h2{font-family:var(--head);margin:0;font-weight:600}
 h1{font-size:26px}h2{font-size:22px}
@@ -41,6 +41,7 @@ h1{font-size:26px}h2{font-size:22px}
 .nav{display:flex;justify-content:space-between;margin-top:14px}
 .kbwrap{overflow-x:hidden;margin-top:8px}
 .kb{position:relative;display:flex;height:230px;width:calc(var(--kw)*15);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+@media (min-width:700px){:root{--kw:calc((min(100vw,960px) - 28px)/15)}.app{max-width:960px}.nav{display:none}.kb{height:clamp(240px,30vw,320px)}.w{font-size:17px}}
 .w,.b{appearance:none;-webkit-appearance:none;padding:0;-webkit-tap-highlight-color:transparent}
 .w{flex:none;width:calc(var(--kw) - 2px);margin:0 1px;background:#fff;color:#2b2f36;border:1px solid #9aa3ad;border-radius:0 0 var(--r) var(--r);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:600}
 .b{position:absolute;top:0;width:calc(var(--kw)*.6);height:60%;background:#1a1a1f;border:0;border-radius:0 0 8px 8px;z-index:2}
@@ -194,7 +195,7 @@ if(done){add('Play again',()=>go(cur));if(cur<LESSONS.length-1)add('Next lesson'
 $('mk').onclick=()=>{mode='kid';go(cur)};
 $('ma').onclick=()=>{mode='adult';go(cur)};
 const kbw=$('kbw');
-function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=kbw.clientWidth/10;
+function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=$('kb').offsetWidth/15;
 kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
 $('hb').onclick=hear;
 $('rb').onclick=()=>{rh=!rh;$('rb').textContent=`Rhythm: ${rh?'on':'off'}`;$('rb').setAttribute('aria-pressed',rh);$('tm').hidden=$('sb').hidden=!rh;tm();go(cur);if(rh)say('Press Start, listen to the count-in, then play on each beat.')};
