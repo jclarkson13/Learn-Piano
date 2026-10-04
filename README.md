@@ -26,6 +26,7 @@ Open `index.html` in any modern browser, including Safari on iPhone and iPad.
 - Fonts load from Google Fonts; the app falls back to standard fonts when offline.
 - Song melodies were entered by hand. "Saints Go Marching" and "Amazing Grace" cover only the opening phrases. Check them against a trusted score before teaching from them.
 - Progress (stars, last lesson, Kids/Adults mode) is saved in the browser with localStorage. The lesson list has a Reset progress item.
+- Rhythm mode: a metronome with a four-beat count-in, three tempos (50, 70, 90 BPM), and "On beat", "Early", or "Late" feedback on every note, with a timing summary at the end.
 - "Hear it" plays the lesson while the keys light up. Finger numbers appear on lessons that fit one hand position (C to G).
 
 ## Adding lessons
