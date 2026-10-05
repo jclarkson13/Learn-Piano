@@ -6,7 +6,7 @@ A single-page piano lesson app for kids and adult beginners. No build step, no d
 
 - Two-octave on-screen keyboard (C4 to C6) with Web Audio sound. On phones it shows about ten white keys with Lower/Higher buttons; on tablets and wide screens (700 px and up) both octaves fit with taller keys and no scrolling
 - Kids and Adults modes (different look, wording, and rewards)
-- Grouped lesson list: first notes, songs, chords, chords + melody, and two-hand lessons
+- Grouped lesson list: first notes, songs, black keys, chords, chords + melody, two-hand lessons, and advanced modes (Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian)
 - Chords and two-hand steps: press every glowing key within about two seconds
 - Star ratings per lesson, based on missed notes
 
@@ -27,6 +27,7 @@ Open `index.html` in any modern browser, including Safari on iPhone and iPad.
 - Song melodies were entered by hand. "Saints Go Marching" and "Amazing Grace" cover only the opening phrases. Check them against a trusted score before teaching from them.
 - Progress (stars, last lesson, Kids/Adults mode) is saved in the browser with localStorage. The lesson list has a Reset progress item.
 - Rhythm mode: a metronome with a four-beat count-in, three tempos (50, 70, 90 BPM), and "On beat", "Early", or "Late" feedback on every note, with a timing summary at the end.
+- Mode ear quiz: five questions. The app plays a scale starting on C and you pick the mode (Kids mode uses four moods: happy, sad, dark, dreamy; Adults mode uses all seven modes). The keys still make sound during the quiz.
 - "Hear it" plays the lesson while the keys light up. Finger numbers appear on lessons that fit one hand position (C to G).
 
 ## Adding lessons
