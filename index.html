@@ -53,7 +53,12 @@ h1{font-size:26px}h2{font-size:22px}
 .w[data-f]{position:relative}
 .w[data-f]::after{content:attr(data-f);position:absolute;top:12px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--onaccent);display:flex;align-items:center;justify-content:center;font-size:14px}
 .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-#qb{margin-top:8px}
+#qb,#rsb,#lbb{margin:8px 8px 0 0}
+.sm .btn{padding:6px 10px}
+.stf{color:var(--ink)}
+.stf svg{display:block;width:100%;max-width:360px;margin:6px auto}
+.stf line{stroke:currentColor;stroke-width:1.5}
+.stf .nt{fill:var(--accent)}
 .btn[aria-pressed="true"]{background:var(--accent);color:var(--onaccent)}
 .w.bad,.b.bad{background:var(--bad)!important;color:#fff;animation:shake .3s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
@@ -67,7 +72,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <h1>Piano Starter</h1>
 <div class="seg" role="group" aria-label="Mode"><button id="mk" aria-pressed="true">Kids</button><button id="ma" aria-pressed="false">Adults</button></div>
 </header>
-<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button></div>
+<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button><button class="btn" id="rsb" aria-pressed="false">🎼 Read the staff</button><button class="btn" id="lbb" aria-pressed="false">🎹 Chord library</button></div>
 <section class="card" id="lc">
 <h2 id="lt"></h2>
 <p id="ld"></p>
@@ -76,6 +81,24 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <p class="msg" id="msg" aria-live="polite"></p>
 <div class="row"><button class="btn" id="hb">▶ Hear it</button><button class="btn" id="rb" aria-pressed="false">Rhythm: off</button><button class="btn" id="tm" hidden></button><button class="btn primary" id="sb" hidden>▶ Start</button></div>
 <div class="actions" id="act" hidden></div>
+</section>
+<section class="card" id="lib" hidden>
+<h2>Chord library</h2>
+<p>Pick a root note and a chord type. The keys light up and the chord plays.</p>
+<div class="row sm" id="lroots"></div>
+<div class="row sm" id="ltypes"></div>
+<p class="msg" id="lname"></p>
+<p id="linfo"></p>
+<div class="row" id="lact"></div>
+</section>
+<section class="card" id="read" hidden>
+<h2>Read the staff</h2>
+<div class="row" id="rlev"></div>
+<p id="rtext"></p>
+<div class="stf" id="stf"></div>
+<p class="msg" id="rmsg" aria-live="polite"></p>
+<div class="row" id="ract"></div>
+<p>Lines from the bottom: E G B D F. Spaces: F A C E.</p>
 </section>
 <section class="card" id="quiz" hidden>
 <h2>Mode ear quiz</h2>
@@ -157,9 +180,53 @@ $('qmsg').textContent='';$('qact').innerHTML='';qAdd('▶ Play again',qScale);qS
 function qAns(m){if(qd)return;qd=1;const ok=m===qc;if(ok)qs++;qi++;
 $('qmsg').textContent=(ok?'Correct! ':'Not quite. ')+`That was ${MODES[qc][0]} (${MODES[qc][1]}).`+(qi===5?` Score: ${qs} of 5.`:'');
 $('qact').innerHTML='';qAdd('▶ Hear it again',qScale);qAdd(qi<5?'Next question':'New quiz',qi<5?qAsk:qStart,1)}
-function qStart(){qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
+function qStart(){rdClose();lbClose();qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});qAsk()}
 function qClose(){qz=0;qid=0;$('quiz').hidden=true;$('lc').hidden=false;$('qb').setAttribute('aria-pressed','false')}
+const LV=[[0,1,2,3,4],[0,1,2,3,4,5,6,7],[0,1,2,3,4,5,6,7,8,9,10,11,12]],LN=['Easy: C to G','Medium: C to C','Hard: all keys'];
+let rdz=0,rdl=0,rdq=0,rdc=0,rdm=0,rdt=-1,rbusy=0;
+function staff(w){const s=w-2,y=k=>100-k*6,L=(a,b,k)=>`<line x1="${a}" x2="${b}" y1="${y(k)}" y2="${y(k)}"/>`;let g='';
+for(let k=0;k<=8;k+=2)g+=L(40,230,k);
+if(s<0)for(let k=-2;k>=s;k-=2)g+=L(100,140,k);
+if(s>8)for(let k=10;k<=s;k+=2)g+=L(100,140,k);
+const ny=y(s);g+=s<4?`<line x1="127" x2="127" y1="${ny}" y2="${ny-34}"/>`:`<line x1="113" x2="113" y1="${ny}" y2="${ny+34}"/>`;
+return `<svg viewBox="0 0 240 130" role="img" aria-label="A note on a treble clef staff"><text x="44" y="${y(0)+4}" font-size="52" fill="currentColor">𝄞</text>${g}<ellipse class="nt" cx="120" cy="${ny}" rx="8" ry="5.5" transform="rotate(-20 120 ${ny})"/></svg>`}
+function rdNext(){if(!rdz)return;const p=LV[rdl].filter(x=>x!==rdt);rdt=p[Math.floor(Math.random()*p.length)];rdm=0;rbusy=0;
+$('stf').innerHTML=staff(rdt);$('rtext').textContent=`Note ${rdq+1} of 10: tap this note on the keyboard.`;$('rmsg').textContent=''}
+function rdStart(){qClose();lbClose();rdz=1;rdq=0;rdc=0;rdt=-1;$('lc').hidden=true;$('read').hidden=false;$('pl').hidden=true;$('rsb').setAttribute('aria-pressed','true');
+Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});
+const l=$('rlev');l.innerHTML='';LN.forEach((t,n)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-pressed',n===rdl);b.onclick=()=>{rdl=n;rdStart()};l.append(b)});
+$('ract').innerHTML='';rdNext()}
+function rdClose(){rdz=0;$('read').hidden=true;$('lc').hidden=false;$('rsb').setAttribute('aria-pressed','false')}
+function rdPress(i){tone(i);if(rbusy||rdq>=10)return;const el=keys[i];
+if(i===WHITE[rdt]){flash(el,'good');if(!rdm)rdc++;rdq++;rbusy=1;
+if(rdq<10){$('rmsg').textContent='Correct!';setTimeout(rdNext,600)}
+else{$('rmsg').textContent=`Done! ${rdc} of 10 on the first try.`;$('stf').innerHTML='';$('rtext').textContent='Round complete';
+const b=document.createElement('button');b.className='btn primary';b.textContent='New round';b.onclick=rdStart;$('ract').append(b)}}
+else{rdm=1;flash(el,'bad');$('rmsg').textContent=`That was ${NOTES[i][0]}. Look again!`}}
+const ROOTS=[['C',0,0],['D♭',1,1],['D',2,1],['E♭',3,2],['E',4,2],['F',5,3],['F♯',6,3],['G',7,4],['A♭',8,5],['A',9,5],['B♭',10,6],['B',11,6]];
+const TYPES=[['Major',[[0,1],[4,3],[7,5]],'1 3 5','happy'],['Minor',[[0,1],[3,3],[7,5]],'1 ♭3 5','sad'],['Diminished',[[0,1],[3,3],[6,5]],'1 ♭3 ♭5','tense'],['Augmented',[[0,1],[4,3],[8,5]],'1 3 ♯5','dreamy'],['Sus2',[[0,1],[2,2],[7,5]],'1 2 5','open'],['Sus4',[[0,1],[5,4],[7,5]],'1 4 5','floating'],['Major 7',[[0,1],[4,3],[7,5],[11,7]],'1 3 5 7','smooth'],['Minor 7',[[0,1],[3,3],[7,5],[10,7]],'1 ♭3 5 ♭7','mellow'],['Dominant 7',[[0,1],[4,3],[7,5],[10,7]],'1 3 5 ♭7','bluesy']];
+let lbz=0,lr=0,lt=0;
+const lpool=()=>mode==='kid'?[0,1,8]:[0,1,2,3,4,5,6,7,8];
+function spell(r,s,d){const L=(r[2]+d-1)%7,x=(r[1]+s)%12,a=((x-[0,2,4,5,7,9,11][L])%12+18)%12-6;
+return Math.abs(a)>1?['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][x]:'CDEFGAB'[L]+['♭','','♯'][a+1]}
+function chord(){const r=ROOTS[lr],T=TYPES[lt];return{n:T[1].map(([s])=>r[1]+s),w:T[1].map(([s,d])=>spell(r,s,d))}}
+function lbPlay(arp){chord().n.forEach((n,k)=>setTimeout(()=>{tone(n);flash(keys[n],'demo')},arp?k*320:0))}
+function lbShow(p){const c=chord(),T=TYPES[lt];
+$('lname').textContent=`${ROOTS[lr][0]} ${T[0].toLowerCase()}: ${c.w.join(' ')}`;
+$('linfo').textContent=mode==='kid'?`This chord sounds ${T[3]}.`:`Formula: ${T[2]}, measured from the root on the major scale.`;
+Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});
+c.n.forEach(n=>keys[n].classList.add('hint'));
+const wi=WHITE.findIndex(w=>w>=Math.min(...c.n));
+$('kbw').scrollTo({left:Math.max(0,Math.min(5,wi-.5))*$('kb').offsetWidth/15,behavior:'smooth'});
+if(p)lbPlay(0)}
+function lbBuild(){const R=$('lroots'),Y=$('ltypes'),A=$('lact');R.innerHTML='';Y.innerHTML='';A.innerHTML='';
+const mk2=(par,t,on,f)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-pressed',on);b.onclick=f;par.append(b)};
+ROOTS.forEach((r,i)=>mk2(R,r[0],i===lr,()=>{lr=i;lbBuild();lbShow(1)}));
+lpool().forEach(i=>mk2(Y,TYPES[i][0],i===lt,()=>{lt=i;lbBuild();lbShow(1)}));
+[['▶ Play chord',()=>lbPlay(0)],['▶ Arpeggio',()=>lbPlay(1)]].forEach(([t,f])=>{const b=document.createElement('button');b.className='btn primary';b.textContent=t;b.onclick=f;A.append(b)})}
+function lbStart(){qClose();rdClose();lbz=1;if(!lpool().includes(lt))lt=0;$('lc').hidden=true;$('lib').hidden=false;$('pl').hidden=true;$('lbb').setAttribute('aria-pressed','true');lbBuild();lbShow(0)}
+function lbClose(){lbz=0;$('lib').hidden=true;$('lc').hidden=false;$('lbb').setAttribute('aria-pressed','false')}
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
 const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
 g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+1.2);
@@ -181,10 +248,10 @@ BLACK.forEach(([i,p])=>{const b=mk('b',i);b.style.left=`calc(var(--kw)*${p} - va
 function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),350)}
 function say(t){$('msg').textContent=t}
 const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
-function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();save();const L=LESSONS[n],kid=mode==='kid';
+function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();save();const L=LESSONS[n],kid=mode==='kid';
 say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
-function press(i){if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
+function press(i){if(rdz){rdPress(i);return}if(lbz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
 const grp=[].concat(L.s[step]);
 if(grp.includes(i)){flash(el,'good');got.add(i);
@@ -231,6 +298,8 @@ const kbw=$('kbw');
 function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=$('kb').offsetWidth/15;
 kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
 $('hb').onclick=hear;
+$('lbb').onclick=()=>{if(lbz){lbClose();render()}else{stopDemo();run=0;lbStart()}};
+$('rsb').onclick=()=>{if(rdz){rdClose();render()}else{stopDemo();run=0;rdStart()}};
 $('qb').onclick=()=>{if(qz){qClose();render()}else{stopDemo();run=0;qStart()}};
 $('rb').onclick=()=>{rh=!rh;$('rb').textContent=`Rhythm: ${rh?'on':'off'}`;$('rb').setAttribute('aria-pressed',rh);$('tm').hidden=$('sb').hidden=!rh;tm();go(cur);if(rh)say('Press Start, listen to the count-in, then play on each beat.')};
 $('tm').onclick=()=>{ti=(ti+1)%TEMPO.length;tm();run=0};
