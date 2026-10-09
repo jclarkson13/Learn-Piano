@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Piano Starter</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2F5D8A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Piano Starter">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Newsreader:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -53,7 +59,7 @@ h1{font-size:26px}h2{font-size:22px}
 .w[data-f]{position:relative}
 .w[data-f]::after{content:attr(data-f);position:absolute;top:12px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--onaccent);display:flex;align-items:center;justify-content:center;font-size:14px}
 .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-#qb,#rsb,#lbb{margin:8px 8px 0 0}
+#qb,#rsb,#lbb,#thb{margin:8px 8px 0 0}
 .sm .btn{padding:6px 10px}
 .stf{color:var(--ink)}
 .stf svg{display:block;width:100%;max-width:360px;margin:6px auto}
@@ -72,7 +78,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <h1>Piano Starter</h1>
 <div class="seg" role="group" aria-label="Mode"><button id="mk" aria-pressed="true">Kids</button><button id="ma" aria-pressed="false">Adults</button></div>
 </header>
-<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button><button class="btn" id="rsb" aria-pressed="false">🎼 Read the staff</button><button class="btn" id="lbb" aria-pressed="false">🎹 Chord library</button></div>
+<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button><button class="btn" id="rsb" aria-pressed="false">🎼 Read the staff</button><button class="btn" id="lbb" aria-pressed="false">🎹 Chord library</button><button class="btn" id="thb" aria-pressed="false">📖 Music theory</button></div>
 <section class="card" id="lc">
 <h2 id="lt"></h2>
 <p id="ld"></p>
@@ -81,6 +87,13 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <p class="msg" id="msg" aria-live="polite"></p>
 <div class="row"><button class="btn" id="hb">▶ Hear it</button><button class="btn" id="rb" aria-pressed="false">Rhythm: off</button><button class="btn" id="tm" hidden></button><button class="btn primary" id="sb" hidden>▶ Start</button></div>
 <div class="actions" id="act" hidden></div>
+</section>
+<section class="card" id="th" hidden>
+<h2>Music theory</h2>
+<div class="row sm" id="tlist"></div>
+<p class="msg" id="ttitle"></p>
+<p id="tbody"></p>
+<div class="row" id="tact"></div>
 </section>
 <section class="card" id="lib" hidden>
 <h2>Chord library</h2>
@@ -127,6 +140,10 @@ const LESSONS=[
 {t:'Ode to Joy',s:[4,4,5,7,7,5,4,2,0,0,2,4,4,2,2],kid:'A famous tune by Beethoven. Take it one note at a time.',adult:'Play the main theme of Beethoven’s Ode to Joy, moving mostly by step.'},
 {t:'Saints Go Marching',s:[0,4,5,7,0,4,5,7,0,4,5,7,4,0,4,2],kid:'Oh when the saints! Play the first part of this happy tune.',adult:'Play the opening verse: C E F G twice, then C E F G E C E D.'},
 {t:'Amazing Grace',s:[7,12,16,12,16,14,12,9,7],kid:'A gentle, famous tune. Play the first line slowly.',adult:'Play the first line, “Amazing grace, how sweet the sound.” It starts on G, then jumps up to C.'},
+{t:'Old MacDonald',s:[19,19,19,14,16,16,14,11,11,9,9,7],kid:'E-I-E-I-O! Play the tune in the high part of the keyboard.',adult:'Play “Old MacDonald had a farm, E-I-E-I-O.” It sits in the upper octave: G G G D E E D, then B B A A G.'},
+{t:'Itsy Bitsy Spider',s:[7,12,12,12,14,16,16,16,14,12,14,16,12],kid:'Climb up the water spout! Watch the jump from G up to C.',adult:'Play the first line, “The itsy bitsy spider climbed up the water spout.” It starts on G, then leaps up to C.'},
+{t:'Silent Night',s:[7,9,7,4,7,9,7,4,14,14,11,12,12,7],kid:'A gentle Christmas song. Play it slowly and softly.',adult:'Play the first four phrases: “Silent night, holy night, all is calm, all is bright.” Note the leap up to D on “all is calm.”'},
+{t:'Greensleeves',s:[9,12,14,16,17,16,14,11],kid:'A beautiful old English tune. Play the first line slowly.',adult:'Play the opening phrase of Greensleeves in A minor: A C D E F E D B. Listen for the mournful minor sound.'},
 {t:'Meet the black keys',s:[1,3,6,8,10],kid:'Black keys sit between the white ones. Tap each glowing black key!',adult:'Black keys are sharps (♯) or flats (♭). Play C♯, D♯, F♯, G♯, A♯ in order.'},
 {t:'Climb every key',s:[0,1,2,3,4,5,6,7],kid:'Climb up one key at a time: white, black, white!',adult:'A chromatic run: every key in order, one half step at a time, from C up to G.'},
 {t:'G major scale',s:[7,9,11,12,14,16,18,19],kid:'This scale has just one black key. Can you find it?',adult:'Play the G major scale. Its one black key is F♯.'},
@@ -151,7 +168,7 @@ const LESSONS=[
 {t:'C Mixolydian',s:up([0,2,4,5,7,9,10,12]),kid:'A relaxed, rock-and-roll scale.',adult:'C D E F G A B♭ C. Major with a flat 7th (B♭), a relaxed, bluesy sound found in rock and folk.'},
 {t:'C Aeolian (minor)',s:up([0,2,3,5,7,8,10,12]),kid:'The sad minor scale.',adult:'C D E♭ F G A♭ B♭ C. The natural minor scale: flat 3rd, 6th and 7th.'},
 {t:'C Locrian',s:up([0,1,3,5,6,8,10,12]),kid:'The spookiest scale of all!',adult:'C D♭ E♭ F G♭ A♭ B♭ C. The darkest, least stable mode, with a flat 2nd and flat 5th.'}];
-const GROUPS=[['First notes',0],['Songs',3],['Black keys',11],['Chords',14],['Chords + melody',19],['Two hands',21],['Modes (advanced)',27]];
+const GROUPS=[['First notes',0],['Songs',3],['Black keys',15],['Chords',18],['Chords + melody',23],['Two hands',25],['Modes (advanced)',31]];
 let mode='kid',cur=0,step=0,miss=0,done=false,stars=LESSONS.map(()=>0),ac,keys={},got=new Set(),gt;
 
 const SK='pianoStarter';let demo=0,rs=0,rh=0,ti=1,run=0,t0=0,tl={on:0,n:0,t:''};
@@ -180,7 +197,7 @@ $('qmsg').textContent='';$('qact').innerHTML='';qAdd('▶ Play again',qScale);qS
 function qAns(m){if(qd)return;qd=1;const ok=m===qc;if(ok)qs++;qi++;
 $('qmsg').textContent=(ok?'Correct! ':'Not quite. ')+`That was ${MODES[qc][0]} (${MODES[qc][1]}).`+(qi===5?` Score: ${qs} of 5.`:'');
 $('qact').innerHTML='';qAdd('▶ Hear it again',qScale);qAdd(qi<5?'Next question':'New quiz',qi<5?qAsk:qStart,1)}
-function qStart(){rdClose();lbClose();qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
+function qStart(){rdClose();lbClose();thClose();qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});qAsk()}
 function qClose(){qz=0;qid=0;$('quiz').hidden=true;$('lc').hidden=false;$('qb').setAttribute('aria-pressed','false')}
 const LV=[[0,1,2,3,4],[0,1,2,3,4,5,6,7],[0,1,2,3,4,5,6,7,8,9,10,11,12]],LN=['Easy: C to G','Medium: C to C','Hard: all keys'];
@@ -193,7 +210,7 @@ const ny=y(s);g+=s<4?`<line x1="127" x2="127" y1="${ny}" y2="${ny-34}"/>`:`<line
 return `<svg viewBox="0 0 240 130" role="img" aria-label="A note on a treble clef staff"><text x="44" y="${y(0)+4}" font-size="52" fill="currentColor">𝄞</text>${g}<ellipse class="nt" cx="120" cy="${ny}" rx="8" ry="5.5" transform="rotate(-20 120 ${ny})"/></svg>`}
 function rdNext(){if(!rdz)return;const p=LV[rdl].filter(x=>x!==rdt);rdt=p[Math.floor(Math.random()*p.length)];rdm=0;rbusy=0;
 $('stf').innerHTML=staff(rdt);$('rtext').textContent=`Note ${rdq+1} of 10: tap this note on the keyboard.`;$('rmsg').textContent=''}
-function rdStart(){qClose();lbClose();rdz=1;rdq=0;rdc=0;rdt=-1;$('lc').hidden=true;$('read').hidden=false;$('pl').hidden=true;$('rsb').setAttribute('aria-pressed','true');
+function rdStart(){qClose();lbClose();thClose();rdz=1;rdq=0;rdc=0;rdt=-1;$('lc').hidden=true;$('read').hidden=false;$('pl').hidden=true;$('rsb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});
 const l=$('rlev');l.innerHTML='';LN.forEach((t,n)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-pressed',n===rdl);b.onclick=()=>{rdl=n;rdStart()};l.append(b)});
 $('ract').innerHTML='';rdNext()}
@@ -225,8 +242,28 @@ const mk2=(par,t,on,f)=>{const b=document.createElement('button');b.className='b
 ROOTS.forEach((r,i)=>mk2(R,r[0],i===lr,()=>{lr=i;lbBuild();lbShow(1)}));
 lpool().forEach(i=>mk2(Y,TYPES[i][0],i===lt,()=>{lt=i;lbBuild();lbShow(1)}));
 [['▶ Play chord',()=>lbPlay(0)],['▶ Arpeggio',()=>lbPlay(1)]].forEach(([t,f])=>{const b=document.createElement('button');b.className='btn primary';b.textContent=t;b.onclick=f;A.append(b)})}
-function lbStart(){qClose();rdClose();lbz=1;if(!lpool().includes(lt))lt=0;$('lc').hidden=true;$('lib').hidden=false;$('pl').hidden=true;$('lbb').setAttribute('aria-pressed','true');lbBuild();lbShow(0)}
+function lbStart(){qClose();rdClose();thClose();lbz=1;if(!lpool().includes(lt))lt=0;$('lc').hidden=true;$('lib').hidden=false;$('pl').hidden=true;$('lbb').setAttribute('aria-pressed','true');lbBuild();lbShow(0)}
 function lbClose(){lbz=0;$('lib').hidden=true;$('lc').hidden=false;$('lbb').setAttribute('aria-pressed','false')}
+const THEORY=[
+{t:'Half and whole steps',kid:'The very next key up is a half step. Skip one key and it is a whole step. Listen to both!',adult:'A half step moves to the very next key, black or white (C to C♯). A whole step is two half steps (C to D). Every scale and chord is built from these two distances.',d:[0,1,0,2]},
+{t:'Major scale pattern',kid:'Every major scale follows the same pattern of steps. On the white keys, C up to C is the happy major scale.',adult:'Whole, whole, half, whole, whole, whole, half (W W H W W W H). Starting on C gives the white keys. Start on any other note and the pattern brings in black keys: G major needs F♯.',d:[0,2,4,5,7,9,11,12]},
+{t:'Intervals',kid:'An interval is the distance between two notes. Listen to a third, a fifth, and an octave starting on C.',adult:'Count letter names, including both ends: C to E is a 3rd, C to G a 5th, C to C an octave. Quality matters too: C to E (4 half steps) is a major 3rd, C to E♭ (3) is a minor 3rd, and C to G (7) is a perfect 5th.',d:[[0,4],[0,7],[0,12]]},
+{t:'Triads',kid:'Stack three notes, skipping a key each time, to build a chord. Major sounds happy, minor sounds sad.',adult:'A triad stacks two thirds on a root. Major = major third (4 half steps) + minor third (3), as in C E G. Minor = minor third + major third, as in C E♭ G. Only the middle note changes.',d:[[0,4,7],[0,3,7]]},
+{t:'Chords in a key',kid:'Every note of the scale can be the bottom of a chord. These are the seven chords of C major.',adult:'Building a triad on each scale degree of C major gives C, Dm, Em, F, G, Am, B° (I, ii, iii, IV, V, vi, vii°). Capitals mean major, lower case minor, and ° diminished. I, IV and V power a huge number of songs.',d:[[0,4,7],[2,5,9],[4,7,11],[5,9,12],[7,11,14],[9,12,16],[11,14,17]]},
+{t:'Inversions',kid:'The same chord can have its notes in a different order. It still sounds like the same chord!',adult:'Root position puts the root on the bottom (C E G). First inversion moves the root to the top (E G C). Second inversion moves the third up too (G C E). Inversions make chord changes smoother.',d:[[0,4,7],[4,7,12],[7,12,16]]},
+{t:'Relative minor',kid:'Every major scale has a sad cousin that uses the very same notes. First C major, then A minor.',adult:'The relative minor starts on the 6th note of a major scale. A minor shares every note with C major: same notes, different home note, different mood.',d:[0,2,4,5,7,9,11,12,9,11,12,14,16,17,19,21]},
+{t:'Circle of fifths',kid:'Jump up a fifth again and again and you visit every key. Each jump adds one sharp!',adult:'Moving up a fifth adds one sharp to the key signature: C (none), G (1♯), D (2♯), A (3♯), E (4♯), B (5♯), F♯ (6♯). Moving down a fifth adds flats: F (1♭), B♭ (2♭), E♭ (3♭), A♭ (4♭).',d:[0,7,2,9,4,11,6]},
+{t:'Note values and time',kid:'Notes last different lengths. A quarter note gets one beat, a half note gets two, and a whole note gets four.',adult:'Whole note = 4 beats, half = 2, quarter = 1, eighth = half a beat. In a time signature, the top number says how many beats are in a measure and the bottom says which note gets the beat. 4/4 is four quarter-note beats, and 3/4 is a waltz. Try Rhythm mode to practice staying on the beat.'},
+{t:'Chord symbols',kid:'Letters above the music tell you which chord to play. C means C major. Cm means C minor.',adult:'C = major, Cm = minor, Cdim = diminished, Caug or C+ = augmented, C7 = dominant 7th, Cmaj7 = major 7th, Csus2 and Csus4 = suspended. A slash chord like C/E means play C with E in the bass. Look any of them up in the Chord library.'}];
+let thz=0,thi=0,thid=0;
+function thBuild(){const L=$('tlist');L.innerHTML='';THEORY.forEach((x,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=x.t;b.setAttribute('aria-pressed',i===thi);b.onclick=()=>{thi=i;thBuild();thShow()};L.append(b)})}
+function thShow(){const T=THEORY[thi];thid=0;$('ttitle').textContent=T.t;$('tbody').textContent=mode==='kid'?T.kid:T.adult;$('tact').innerHTML='';
+Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});
+if(T.d){const a=[].concat(...T.d.map(s=>[].concat(s)));new Set(a).forEach(n=>keys[n].classList.add('hint'));
+const b=document.createElement('button');b.className='btn primary';b.textContent='▶ Play example';b.onclick=thPlay;$('tact').append(b)}}
+function thPlay(){const id=thid=Date.now();THEORY[thi].d.forEach((s,k)=>setTimeout(()=>{if(thid===id)[].concat(s).forEach(n=>{tone(n);flash(keys[n],'demo')})},k*700))}
+function thStart(){qClose();rdClose();lbClose();thz=1;$('lc').hidden=true;$('th').hidden=false;$('pl').hidden=true;$('thb').setAttribute('aria-pressed','true');$('kbw').scrollTo({left:0,behavior:'smooth'});thBuild();thShow()}
+function thClose(){thz=0;thid=0;$('th').hidden=true;$('lc').hidden=false;$('thb').setAttribute('aria-pressed','false')}
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
 const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
 g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+1.2);
@@ -248,10 +285,10 @@ BLACK.forEach(([i,p])=>{const b=mk('b',i);b.style.left=`calc(var(--kw)*${p} - va
 function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),350)}
 function say(t){$('msg').textContent=t}
 const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
-function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();save();const L=LESSONS[n],kid=mode==='kid';
+function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();thClose();save();const L=LESSONS[n],kid=mode==='kid';
 say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
-function press(i){if(rdz){rdPress(i);return}if(lbz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
+function press(i){if(rdz){rdPress(i);return}if(lbz||thz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
 const grp=[].concat(L.s[step]);
 if(grp.includes(i)){flash(el,'good');got.add(i);
@@ -298,6 +335,7 @@ const kbw=$('kbw');
 function view(){const a=LESSONS[cur].s.flat(),w=n=>Math.max(0,WHITE.findIndex(x=>x>=n)),lo=w(Math.min(...a)),hi=w(Math.max(...a)),kw=$('kb').offsetWidth/15;
 kbw.scrollTo({left:Math.min(5,Math.max(0,hi-lo>8?lo:lo-.5))*kw,behavior:'smooth'})}
 $('hb').onclick=hear;
+$('thb').onclick=()=>{if(thz){thClose();render()}else{stopDemo();run=0;thStart()}};
 $('lbb').onclick=()=>{if(lbz){lbClose();render()}else{stopDemo();run=0;lbStart()}};
 $('rsb').onclick=()=>{if(rdz){rdClose();render()}else{stopDemo();run=0;rdStart()}};
 $('qb').onclick=()=>{if(qz){qClose();render()}else{stopDemo();run=0;qStart()}};
@@ -307,6 +345,7 @@ $('sb').onclick=startRun;
 $('pb').onclick=()=>{rs=0;render();const p=$('pl'),open=p.hidden;p.hidden=!open;$('pb').setAttribute('aria-expanded',open);if(open)p.querySelector('[aria-current]').scrollIntoView({block:'nearest'})};
 $('sl').onclick=()=>kbw.scrollBy({left:-kbw.clientWidth*.4,behavior:'smooth'});
 $('sr').onclick=()=>kbw.scrollBy({left:kbw.clientWidth*.4,behavior:'smooth'});
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 go(0);
 </script>
 </body>
