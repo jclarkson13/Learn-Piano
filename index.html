@@ -143,7 +143,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <div id="swlist"></div>
 <p class="msg" id="swmsg" aria-live="polite"></p>
 <div class="row" id="swact"><button class="btn primary" id="swplay">▶ Play song</button><button class="btn" id="swclr">Clear</button></div>
-<p>Section orders are simplified. The chords are a starter progression you can change, not the original song’s chords.</p>
+<p id="swfine"></p>
 </section>
 <div class="nav"><button class="btn" id="sl">◀ Lower</button><button class="btn" id="sr">Higher ▶</button></div>
 <div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div>
@@ -289,24 +289,37 @@ const b=document.createElement('button');b.className='btn primary';b.textContent
 function thPlay(){const id=thid=Date.now();THEORY[thi].d.forEach((s,k)=>setTimeout(()=>{if(thid===id)[].concat(s).forEach(n=>{tone(n);flash(keys[n],'demo')})},k*700))}
 function thStart(){qClose();rdClose();lbClose();swClose();thz=1;$('lc').hidden=true;$('th').hidden=false;$('pl').hidden=true;$('thb').setAttribute('aria-pressed','true');$('kbw').scrollTo({left:0,behavior:'smooth'});thBuild();thShow()}
 function thClose(){thz=0;thid=0;$('th').hidden=true;$('lc').hidden=false;$('thb').setAttribute('aria-pressed','false')}
-const CH=[['I',0,0],['ii',2,1],['iii',4,1],['IV',5,0],['V',7,0],['vi',9,1]];
-const BT={intro:['Intro',[0,3,0,4],205,'Sets the mood before the singing starts.'],verse:['Verse',[5,3,0,4],150,'Tells the story. The words change each time.'],pre:['Pre-chorus',[1,3,4,4],50,'Builds tension so the chorus feels bigger.'],chorus:['Chorus',[0,4,5,3],8,'The big hook. The words repeat so everyone can sing along.'],bridge:['Bridge',[5,4,3,4],275,'A change of scene that makes the last chorus feel earned.'],solo:['Solo',[0,4,5,3],325,'An instrumental break where the tune takes a turn without words.'],riff:['Riff',[0,0,3,0],95,'A short, catchy pattern that can be the hook of the whole song.'],outro:['Outro',[3,0,4,0],240,'The ending. It can fade, repeat, or land on a final chord.']};
+const RC={'I':[0,'M'],'I7':[0,'7'],'i':[0,'m'],'i7':[0,'m7'],'ii':[2,'m'],'II7':[2,'7'],'iii':[4,'m'],'III7':[4,'7'],'IV':[5,'M'],'V':[7,'M'],'V7':[7,'7'],'vi':[9,'m'],'♭III':[3,'M'],'♭VI':[8,'M'],'♭VII':[10,'M'],'vii7':[11,'m7']};
+const QI={M:[0,4,7],m:[0,3,7],'7':[0,4,7,10],m7:[0,3,7,10]},QN={M:'',m:'m','7':'7',m7:'m7'},DG=[1,2,2,3,3,4,4,5,6,6,7,7];
+const PAL=['I','ii','iii','IV','V','vi','V7','♭VII'],OLD=['I','ii','iii','IV','V','vi'];
+const BT={intro:['Intro',['I','IV','I','V'],205,'Sets the mood before the singing starts.'],verse:['Verse',['vi','IV','I','V'],150,'Tells the story. The words change each time.'],pre:['Pre-chorus',['ii','IV','V','V'],50,'Builds tension so the chorus feels bigger.'],chorus:['Chorus',['I','V','vi','IV'],8,'The big hook. The words repeat so everyone can sing along.'],bridge:['Bridge',['vi','V','IV','V'],275,'A change of scene that makes the last chorus feel earned.'],solo:['Solo',['I','V','vi','IV'],325,'An instrumental break where the tune takes a turn without words.'],riff:['Riff',['I','I','IV','I'],95,'A short, catchy pattern that can be the hook of the whole song.'],outro:['Outro',['IV','I','V','I'],240,'The ending. It can fade, repeat, or land on a final chord.']};
 const STEMP=[
-{t:'Yesterday',by:'The Beatles',s:['verse','verse','bridge','verse','bridge','verse'],kid:'There is no chorus. The tune itself is the hook, and the bridge changes the mood before the last verse.',adult:'No chorus is needed because the melody and title do a chorus’s job. The bridge shifts the harmony to give the ear a change before the last verse.',try:'Swap a Bridge for a Chorus and hear what changes.'},
-{t:'Hey Jude',by:'The Beatles',s:['verse','bridge','verse','bridge','verse',['outro',[3,0,4,0,3,0,4,0]]],kid:'The song keeps growing, then ends with a long sing-along that repeats.',adult:'Verse and bridge build energy step by step. The long outro pays it off with a simple repeating pattern everyone can sing, so repetition becomes the climax.',try:'Press Play song, then copy the Outro brick twice and listen to how the ending stretches.'},
-{t:'Satisfaction',by:'The Rolling Stones',s:['riff','verse','verse','bridge','verse','riff'],kid:'A short riff you cannot forget, and the title shows up at the end of every verse.',adult:'The riff is the hook. The title lands at the end of each verse, so the payoff arrives on schedule without a separate chorus brick.',try:'Remove the Bridge and see how much the song needs it.'},
-{t:'Man in the Box',by:'Alice in Chains',s:['riff','verse','pre','chorus','verse','chorus','solo','bridge','chorus'],kid:'Quiet parts build up and the chorus bursts out. The break in the middle makes the last chorus feel bigger.',adult:'The pre-chorus builds tension and the chorus releases it. The solo and breakdown reset the energy so the final chorus hits harder.',try:'Delete the Pre-chorus and compare how the Chorus arrives.'},
-{t:'Heart of Gold',by:'Neil Young',s:['intro','verse','chorus','solo','verse','chorus'],kid:'Simple, repeating verses keep your ear on the words. The harmonica gives you a moment to breathe.',adult:'Simple, repeated verses keep the focus on the lyric. The instrumental break gives the listener room to breathe, and the refrain lifts each verse.',try:'Move the Solo to the end and hear how the ending changes.'},
-{t:'Pancho and Lefty',by:'Townes Van Zandt',s:['verse','chorus','verse','chorus','solo','verse','chorus'],kid:'The story is the star. The chorus is a place to rest between chapters.',adult:'The story drives the song, and the refrain lets the listener rest between chapters. The instrumental break gives the story time to sink in.',try:'Add another Verse before the last Chorus and see how it stretches the story.'}];
+{t:'Yesterday',by:'The Beatles',k:5,cn:'Chords follow published transcriptions in F, simplified to basic chords. The bridge varies between versions.',s:['verse','verse','bridge','verse','bridge','verse'],
+b:{verse:['I','vii7','III7','vi','IV','V7','I','vi','II7','IV','I'],bridge:['vii7','III7','vi','V7','IV','V7','I','vii7','III7','vi','V7','IV','V7','I']},
+kid:'There is no chorus. The tune itself is the hook, and the bridge changes the mood before the last verse.',adult:'No chorus is needed because the melody and title do a chorus’s job. The verse leans on ii–V moves (Em7 to A7) that keep pulling toward D minor, and the bridge gives the ear a change before the last verse.',try:'Swap a Bridge for a Chorus and hear what changes.'},
+{t:'Hey Jude',by:'The Beatles',k:5,cn:'Chords follow published transcriptions in F, simplified to basic chords. The outro is F, E♭, B♭, F.',s:['verse','verse','bridge','verse','bridge','verse','outro'],
+b:{verse:['I','V','V7','I','IV','I','V','I'],bridge:['I7','IV','ii','V','I','I7','IV','ii','V','I'],outro:['I','♭VII','IV','I','I','♭VII','IV','I']},
+kid:'The song keeps growing, then ends with a long sing-along that repeats.',adult:'Verse and bridge build energy step by step. The long outro pays it off with a simple repeating pattern everyone can sing, so repetition becomes the climax.',try:'Press Play song, then copy the Outro brick twice and listen to how the ending stretches.'},
+{t:'Satisfaction',by:'The Rolling Stones',k:4,cn:'Chords follow one published transcription in E. The section order is my best reading of it.',s:['riff','chorus','verse','chorus','verse','chorus','verse','chorus'],
+b:{riff:['I','♭VII','♭VII','IV'],verse:['I','♭VII','♭VII','IV','I','♭VII','♭VII','IV'],chorus:['I','IV','I','IV','I','V7','I','IV']},
+kid:'A short riff you cannot forget, and the title comes back after every verse.',adult:'The riff is the hook, and the title refrain returns after each verse, so the payoff arrives on schedule. The D chord (♭VII) against E gives the verse its bluesy edge.',try:'Remove the last Chorus and hear what the ending loses.'},
+{t:'Man in the Box',by:'Alice in Chains',s:['riff','verse','pre','chorus','verse','chorus','solo','bridge','chorus'],cn:'Starter progression. The song is built on riffs and power chords, so these chords are generic.',
+kid:'Quiet parts build up and the chorus bursts out. The break in the middle makes the last chorus feel bigger.',adult:'The pre-chorus builds tension and the chorus releases it. The solo and breakdown reset the energy so the final chorus hits harder.',try:'Delete the Pre-chorus and compare how the Chorus arrives.'},
+{t:'Heart of Gold',by:'Neil Young',k:4,cn:'Chords follow published transcriptions in E minor.',s:['intro','verse','chorus','solo','verse','chorus','solo','outro'],
+b:{intro:['i7','♭VII','i'],verse:['i','♭VI','♭VII','♭III','i','♭VI','♭VII','♭III'],chorus:['i','♭III','♭VI','♭III','i','♭III','♭VI','♭III'],solo:['i','♭VI','♭VII','♭III','i','♭VI','♭VII','♭III'],outro:['i7','♭VII','i','i7','♭VII','i']},
+kid:'Simple, repeating verses keep your ear on the words. The harmonica gives you a moment to breathe.',adult:'Simple, repeated verses keep the focus on the lyric. The harmonica solo rides the same chords as the verse, and the refrain lifts each verse.',try:'Move a Solo to the end and hear how the ending changes.'},
+{t:'Pancho and Lefty',by:'Townes Van Zandt',k:0,cn:'Chords follow a published transcription, shown in C. The recording sounds higher.',s:['intro','verse','verse','chorus','verse','chorus','solo','verse','chorus'],
+b:{intro:['I','V','IV','vi'],solo:['I','V','IV','vi'],verse:['I','V','IV','I','V','IV','I','IV','vi','IV','I','V','IV','vi'],chorus:['IV','I','IV','vi','IV','I','V','IV','vi']},
+kid:'The story is the star. The chorus is a place to rest between chapters.',adult:'The story drives the song, and the refrain lets the listener rest between chapters. Four simple chords carry the whole thing, so the words stay in front.',try:'Delete the second Verse and see how the story loses its setup.'}];
 const SWK='pianoStarterSong',SWMS=1100;
 let swz=0,swk=0,swt=-1,sws=[],swid=0,swp=-1;
-const nb=x=>{const k=typeof x==='string'?x:x[0];return{k,c:(typeof x==='string'?BT[k][1]:x[1]).slice()}};
+const nb=(x,T)=>{const k=typeof x==='string'?x:x[0];return{k,c:(typeof x==='string'?(T&&T.b&&T.b[k])||BT[k][1]:x[1]).slice()}};
 function swSave(){try{localStorage.setItem(SWK,JSON.stringify({k:swk,t:swt,s:sws}))}catch(e){}}
 try{const d=JSON.parse(localStorage.getItem(SWK)||'{}');
 if(d.k>=0&&d.k<12)swk=d.k|0;
 if(d.t>=-1&&d.t<STEMP.length)swt=d.t|0;
-if(Array.isArray(d.s))sws=d.s.filter(b=>b&&BT[b.k]&&Array.isArray(b.c)&&b.c.every(j=>j>=0&&j<CH.length)).map(b=>({k:b.k,c:b.c.slice()}))}catch(e){}
-function swCh(j){const r=ROOTS[swk],c=CH[j],pc=(r[1]+c[1])%12;return{name:spell(r,c[1],j+1)+(c[2]?'m':''),n:[pc,pc+(c[2]?3:4),pc+7]}}
+if(Array.isArray(d.s))sws=d.s.filter(b=>b&&BT[b.k]&&Array.isArray(b.c)&&b.c.every(t=>RC[t]||OLD[t])).map(b=>({k:b.k,c:b.c.map(t=>typeof t==='number'?OLD[t]:t)}))}catch(e){}
+function swCh(t){const r=ROOTS[swk],[s,q]=RC[t],pc=(r[1]+s)%12;return{name:spell(r,s,DG[s])+QN[q],n:QI[q].map(x=>pc+x)}}
 function swMark(){[...$('swlist').children].forEach((e,i)=>e.classList.toggle('now',i===swp))}
 function swStop(){swid=0;swp=-1;$('swplay').textContent='▶ Play song';swMark()}
 function swPlay(a,b){swStop();if(!sws.length){$('swmsg').textContent='Add a brick first.';return}
@@ -317,7 +330,7 @@ function swAdd(k){swStop();sws.push(nb(k));swSave();swRender();$('swmsg').textCo
 function swMove(i,d){const j=i+d;if(j<0||j>=sws.length)return;swStop();[sws[i],sws[j]]=[sws[j],sws[i]];swSave();swRender()}
 function swDup(i){swStop();sws.splice(i+1,0,{k:sws[i].k,c:sws[i].c.slice()});swSave();swRender()}
 function swDel(i){swStop();sws.splice(i,1);swSave();swRender()}
-function swTpl(i){swStop();swt=i;sws=STEMP[i].s.map(nb);$('swmsg').textContent='';swSave();swBuild();swRender()}
+function swTpl(i){swStop();const T=STEMP[i];swt=i;if(T.k!==undefined)swk=T.k;sws=T.s.map(x=>nb(x,T));$('swmsg').textContent='';swSave();swBuild();swRender()}
 function swRender(){const kid=mode==='kid',L=$('swlist');L.innerHTML='';
 if(!sws.length){const p=document.createElement('p');p.textContent='No bricks yet. Pick a template or add a brick.';L.append(p)}
 sws.forEach((b,i)=>{const T=BT[b.k],d=document.createElement('div');d.className='bk';d.style.setProperty('--bc',`hsl(${T[2]} 55% 48%)`);
@@ -327,10 +340,10 @@ const ac2=document.createElement('div');ac2.className='sm bact';
 [['▶','Play this brick',()=>swPlay(i,i)],['↑','Move up',()=>swMove(i,-1)],['↓','Move down',()=>swMove(i,1)],['Copy','Copy this brick',()=>swDup(i)],['✕','Remove',()=>swDel(i)]].forEach(([t,l,f])=>{const x=document.createElement('button');x.className='btn';x.textContent=t;x.setAttribute('aria-label',`${l}: ${T[0]}`);x.onclick=f;ac2.append(x)});
 h.append(ac2);d.append(h);
 const cs=document.createElement('div');cs.className='sm bch';
-b.c.forEach((j,x)=>{const c=document.createElement('button');c.className='btn';const ch=swCh(j);c.textContent=ch.name;
-if(!kid){const s=document.createElement('small');s.textContent=' '+CH[j][0];c.append(s)}
+b.c.forEach((t,x)=>{const c=document.createElement('button');c.className='btn';const ch=swCh(t);c.textContent=ch.name;
+if(!kid){const s=document.createElement('small');s.textContent=' '+t;c.append(s)}
 c.setAttribute('aria-label',`Chord ${x+1} of ${T[0]}: ${ch.name}. Tap to change.`);
-c.onclick=()=>{swStop();b.c[x]=(b.c[x]+1)%CH.length;swSave();swRender()};cs.append(c)});
+c.onclick=()=>{swStop();b.c[x]=PAL[(PAL.indexOf(b.c[x])+1)%PAL.length];swSave();swRender()};cs.append(c)});
 d.append(cs);L.append(d)});
 swMark()}
 function swBuild(){const kid=mode==='kid',T=STEMP[swt];
@@ -340,7 +353,8 @@ fill('swtl',STEMP.map(x=>x.t),i=>i===swt,swTpl);
 fill('swkeys',ROOTS.map(r=>r[0]),i=>i===swk,i=>{swStop();swk=i;swSave();swBuild();swRender()});
 fill('swadd',Object.keys(BT).map(k=>BT[k][0]),null,i=>swAdd(Object.keys(BT)[i]));
 $('swnote').textContent=T?`Why it works: ${T.t} (${T.by})`:'';
-$('swwhy').textContent=T?`${kid?T.kid:T.adult} Try it: ${T.try}`:''}
+$('swwhy').textContent=T?`${kid?T.kid:T.adult} Try it: ${T.try}`:'';
+$('swfine').textContent=(T?T.cn+' ':'')+'Section orders are simplified. Tap any chord to change it.'}
 function swStart(){qClose();rdClose();lbClose();thClose();swz=1;$('lc').hidden=true;$('sw').hidden=false;$('pl').hidden=true;$('swb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});swBuild();swRender()}
 function swClose(){swz=0;swStop();$('sw').hidden=true;$('lc').hidden=false;$('swb').setAttribute('aria-pressed','false')}
