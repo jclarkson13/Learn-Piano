@@ -59,7 +59,7 @@ h1{font-size:26px}h2{font-size:22px}
 .w[data-f]{position:relative}
 .w[data-f]::after{content:attr(data-f);position:absolute;top:12px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--onaccent);display:flex;align-items:center;justify-content:center;font-size:14px}
 .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-#qb,#rsb,#lbb,#thb{margin:8px 8px 0 0}
+#qb,#rsb,#lbb,#thb,#swb{margin:8px 8px 0 0}
 .sm .btn{padding:6px 10px}
 .stf{color:var(--ink)}
 .stf svg{display:block;width:100%;max-width:360px;margin:6px auto}
@@ -70,6 +70,14 @@ h1{font-size:26px}h2{font-size:22px}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.w.bad,.b.bad{animation:none}}
+#sw h3{font-family:var(--head);font-size:17px;font-weight:600;margin:16px 0 0}
+#sw .row{margin-top:6px}
+.bk{--bc:var(--line);margin:8px 0;padding:8px 10px;border:2px solid var(--line);border-left:8px solid var(--bc);border-radius:var(--r);background:var(--card)}
+.bk.now{border-color:var(--accent);border-left-color:var(--bc)}
+.bkh{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px}
+.bact,.bch{display:flex;flex-wrap:wrap;gap:6px}
+.bch{margin-top:8px}
+.bch small{color:var(--muted);font-weight:500}
 </style>
 </head>
 <body>
@@ -78,7 +86,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <h1>Piano Starter</h1>
 <div class="seg" role="group" aria-label="Mode"><button id="mk" aria-pressed="true">Kids</button><button id="ma" aria-pressed="false">Adults</button></div>
 </header>
-<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button><button class="btn" id="rsb" aria-pressed="false">🎼 Read the staff</button><button class="btn" id="lbb" aria-pressed="false">🎹 Chord library</button><button class="btn" id="thb" aria-pressed="false">📖 Music theory</button></div>
+<div class="pick"><button class="btn pickbtn" id="pb" aria-expanded="false" aria-controls="pl"></button><div class="plist" id="pl" hidden></div><button class="btn" id="qb" aria-pressed="false">🎧 Mode ear quiz</button><button class="btn" id="rsb" aria-pressed="false">🎼 Read the staff</button><button class="btn" id="lbb" aria-pressed="false">🎹 Chord library</button><button class="btn" id="thb" aria-pressed="false">📖 Music theory</button><button class="btn" id="swb" aria-pressed="false">🧱 Songwriting</button></div>
 <section class="card" id="lc">
 <h2 id="lt"></h2>
 <p id="ld"></p>
@@ -119,6 +127,23 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <div class="row" id="qo"></div>
 <p class="msg" id="qmsg" aria-live="polite"></p>
 <div class="row" id="qact"></div>
+</section>
+<section class="card" id="sw" hidden>
+<h2>Songwriting</h2>
+<p id="swintro"></p>
+<h3>Start from a template</h3>
+<div class="row sm" id="swtl"></div>
+<p class="msg" id="swnote"></p>
+<p id="swwhy"></p>
+<h3>Key</h3>
+<div class="row sm" id="swkeys"></div>
+<h3>Add a brick</h3>
+<div class="row sm" id="swadd"></div>
+<h3>Your song</h3>
+<div id="swlist"></div>
+<p class="msg" id="swmsg" aria-live="polite"></p>
+<div class="row" id="swact"><button class="btn primary" id="swplay">▶ Play song</button><button class="btn" id="swclr">Clear</button></div>
+<p>Section orders are simplified. The chords are a starter progression you can change, not the original song’s chords.</p>
 </section>
 <div class="nav"><button class="btn" id="sl">◀ Lower</button><button class="btn" id="sr">Higher ▶</button></div>
 <div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div>
@@ -197,7 +222,7 @@ $('qmsg').textContent='';$('qact').innerHTML='';qAdd('▶ Play again',qScale);qS
 function qAns(m){if(qd)return;qd=1;const ok=m===qc;if(ok)qs++;qi++;
 $('qmsg').textContent=(ok?'Correct! ':'Not quite. ')+`That was ${MODES[qc][0]} (${MODES[qc][1]}).`+(qi===5?` Score: ${qs} of 5.`:'');
 $('qact').innerHTML='';qAdd('▶ Hear it again',qScale);qAdd(qi<5?'Next question':'New quiz',qi<5?qAsk:qStart,1)}
-function qStart(){rdClose();lbClose();thClose();qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
+function qStart(){rdClose();lbClose();thClose();swClose();qz=1;qi=0;qs=0;qc=-1;$('lc').hidden=true;$('quiz').hidden=false;$('pl').hidden=true;$('qb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});qAsk()}
 function qClose(){qz=0;qid=0;$('quiz').hidden=true;$('lc').hidden=false;$('qb').setAttribute('aria-pressed','false')}
 const LV=[[0,1,2,3,4],[0,1,2,3,4,5,6,7],[0,1,2,3,4,5,6,7,8,9,10,11,12]],LN=['Easy: C to G','Medium: C to C','Hard: all keys'];
@@ -210,7 +235,7 @@ const ny=y(s);g+=s<4?`<line x1="127" x2="127" y1="${ny}" y2="${ny-34}"/>`:`<line
 return `<svg viewBox="0 0 240 130" role="img" aria-label="A note on a treble clef staff"><text x="44" y="${y(0)+4}" font-size="52" fill="currentColor">𝄞</text>${g}<ellipse class="nt" cx="120" cy="${ny}" rx="8" ry="5.5" transform="rotate(-20 120 ${ny})"/></svg>`}
 function rdNext(){if(!rdz)return;const p=LV[rdl].filter(x=>x!==rdt);rdt=p[Math.floor(Math.random()*p.length)];rdm=0;rbusy=0;
 $('stf').innerHTML=staff(rdt);$('rtext').textContent=`Note ${rdq+1} of 10: tap this note on the keyboard.`;$('rmsg').textContent=''}
-function rdStart(){qClose();lbClose();thClose();rdz=1;rdq=0;rdc=0;rdt=-1;$('lc').hidden=true;$('read').hidden=false;$('pl').hidden=true;$('rsb').setAttribute('aria-pressed','true');
+function rdStart(){qClose();lbClose();thClose();swClose();rdz=1;rdq=0;rdc=0;rdt=-1;$('lc').hidden=true;$('read').hidden=false;$('pl').hidden=true;$('rsb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});
 const l=$('rlev');l.innerHTML='';LN.forEach((t,n)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;b.setAttribute('aria-pressed',n===rdl);b.onclick=()=>{rdl=n;rdStart()};l.append(b)});
 $('ract').innerHTML='';rdNext()}
@@ -242,7 +267,7 @@ const mk2=(par,t,on,f)=>{const b=document.createElement('button');b.className='b
 ROOTS.forEach((r,i)=>mk2(R,r[0],i===lr,()=>{lr=i;lbBuild();lbShow(1)}));
 lpool().forEach(i=>mk2(Y,TYPES[i][0],i===lt,()=>{lt=i;lbBuild();lbShow(1)}));
 [['▶ Play chord',()=>lbPlay(0)],['▶ Arpeggio',()=>lbPlay(1)]].forEach(([t,f])=>{const b=document.createElement('button');b.className='btn primary';b.textContent=t;b.onclick=f;A.append(b)})}
-function lbStart(){qClose();rdClose();thClose();lbz=1;if(!lpool().includes(lt))lt=0;$('lc').hidden=true;$('lib').hidden=false;$('pl').hidden=true;$('lbb').setAttribute('aria-pressed','true');lbBuild();lbShow(0)}
+function lbStart(){qClose();rdClose();thClose();swClose();lbz=1;if(!lpool().includes(lt))lt=0;$('lc').hidden=true;$('lib').hidden=false;$('pl').hidden=true;$('lbb').setAttribute('aria-pressed','true');lbBuild();lbShow(0)}
 function lbClose(){lbz=0;$('lib').hidden=true;$('lc').hidden=false;$('lbb').setAttribute('aria-pressed','false')}
 const THEORY=[
 {t:'Half and whole steps',kid:'The very next key up is a half step. Skip one key and it is a whole step. Listen to both!',adult:'A half step moves to the very next key, black or white (C to C♯). A whole step is two half steps (C to D). Every scale and chord is built from these two distances.',d:[0,1,0,2]},
@@ -262,8 +287,65 @@ Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.datase
 if(T.d){const a=[].concat(...T.d.map(s=>[].concat(s)));new Set(a).forEach(n=>keys[n].classList.add('hint'));
 const b=document.createElement('button');b.className='btn primary';b.textContent='▶ Play example';b.onclick=thPlay;$('tact').append(b)}}
 function thPlay(){const id=thid=Date.now();THEORY[thi].d.forEach((s,k)=>setTimeout(()=>{if(thid===id)[].concat(s).forEach(n=>{tone(n);flash(keys[n],'demo')})},k*700))}
-function thStart(){qClose();rdClose();lbClose();thz=1;$('lc').hidden=true;$('th').hidden=false;$('pl').hidden=true;$('thb').setAttribute('aria-pressed','true');$('kbw').scrollTo({left:0,behavior:'smooth'});thBuild();thShow()}
+function thStart(){qClose();rdClose();lbClose();swClose();thz=1;$('lc').hidden=true;$('th').hidden=false;$('pl').hidden=true;$('thb').setAttribute('aria-pressed','true');$('kbw').scrollTo({left:0,behavior:'smooth'});thBuild();thShow()}
 function thClose(){thz=0;thid=0;$('th').hidden=true;$('lc').hidden=false;$('thb').setAttribute('aria-pressed','false')}
+const CH=[['I',0,0],['ii',2,1],['iii',4,1],['IV',5,0],['V',7,0],['vi',9,1]];
+const BT={intro:['Intro',[0,3,0,4],205,'Sets the mood before the singing starts.'],verse:['Verse',[5,3,0,4],150,'Tells the story. The words change each time.'],pre:['Pre-chorus',[1,3,4,4],50,'Builds tension so the chorus feels bigger.'],chorus:['Chorus',[0,4,5,3],8,'The big hook. The words repeat so everyone can sing along.'],bridge:['Bridge',[5,4,3,4],275,'A change of scene that makes the last chorus feel earned.'],solo:['Solo',[0,4,5,3],325,'An instrumental break where the tune takes a turn without words.'],riff:['Riff',[0,0,3,0],95,'A short, catchy pattern that can be the hook of the whole song.'],outro:['Outro',[3,0,4,0],240,'The ending. It can fade, repeat, or land on a final chord.']};
+const STEMP=[
+{t:'Yesterday',by:'The Beatles',s:['verse','verse','bridge','verse','bridge','verse'],kid:'There is no chorus. The tune itself is the hook, and the bridge changes the mood before the last verse.',adult:'No chorus is needed because the melody and title do a chorus’s job. The bridge shifts the harmony to give the ear a change before the last verse.',try:'Swap a Bridge for a Chorus and hear what changes.'},
+{t:'Hey Jude',by:'The Beatles',s:['verse','bridge','verse','bridge','verse',['outro',[3,0,4,0,3,0,4,0]]],kid:'The song keeps growing, then ends with a long sing-along that repeats.',adult:'Verse and bridge build energy step by step. The long outro pays it off with a simple repeating pattern everyone can sing, so repetition becomes the climax.',try:'Press Play song, then copy the Outro brick twice and listen to how the ending stretches.'},
+{t:'Satisfaction',by:'The Rolling Stones',s:['riff','verse','verse','bridge','verse','riff'],kid:'A short riff you cannot forget, and the title shows up at the end of every verse.',adult:'The riff is the hook. The title lands at the end of each verse, so the payoff arrives on schedule without a separate chorus brick.',try:'Remove the Bridge and see how much the song needs it.'},
+{t:'Man in the Box',by:'Alice in Chains',s:['riff','verse','pre','chorus','verse','chorus','solo','bridge','chorus'],kid:'Quiet parts build up and the chorus bursts out. The break in the middle makes the last chorus feel bigger.',adult:'The pre-chorus builds tension and the chorus releases it. The solo and breakdown reset the energy so the final chorus hits harder.',try:'Delete the Pre-chorus and compare how the Chorus arrives.'},
+{t:'Heart of Gold',by:'Neil Young',s:['intro','verse','chorus','solo','verse','chorus'],kid:'Simple, repeating verses keep your ear on the words. The harmonica gives you a moment to breathe.',adult:'Simple, repeated verses keep the focus on the lyric. The instrumental break gives the listener room to breathe, and the refrain lifts each verse.',try:'Move the Solo to the end and hear how the ending changes.'},
+{t:'Pancho and Lefty',by:'Townes Van Zandt',s:['verse','chorus','verse','chorus','solo','verse','chorus'],kid:'The story is the star. The chorus is a place to rest between chapters.',adult:'The story drives the song, and the refrain lets the listener rest between chapters. The instrumental break gives the story time to sink in.',try:'Add another Verse before the last Chorus and see how it stretches the story.'}];
+const SWK='pianoStarterSong',SWMS=1100;
+let swz=0,swk=0,swt=-1,sws=[],swid=0,swp=-1;
+const nb=x=>{const k=typeof x==='string'?x:x[0];return{k,c:(typeof x==='string'?BT[k][1]:x[1]).slice()}};
+function swSave(){try{localStorage.setItem(SWK,JSON.stringify({k:swk,t:swt,s:sws}))}catch(e){}}
+try{const d=JSON.parse(localStorage.getItem(SWK)||'{}');
+if(d.k>=0&&d.k<12)swk=d.k|0;
+if(d.t>=-1&&d.t<STEMP.length)swt=d.t|0;
+if(Array.isArray(d.s))sws=d.s.filter(b=>b&&BT[b.k]&&Array.isArray(b.c)&&b.c.every(j=>j>=0&&j<CH.length)).map(b=>({k:b.k,c:b.c.slice()}))}catch(e){}
+function swCh(j){const r=ROOTS[swk],c=CH[j],pc=(r[1]+c[1])%12;return{name:spell(r,c[1],j+1)+(c[2]?'m':''),n:[pc,pc+(c[2]?3:4),pc+7]}}
+function swMark(){[...$('swlist').children].forEach((e,i)=>e.classList.toggle('now',i===swp))}
+function swStop(){swid=0;swp=-1;$('swplay').textContent='▶ Play song';swMark()}
+function swPlay(a,b){swStop();if(!sws.length){$('swmsg').textContent='Add a brick first.';return}
+const id=swid=Date.now();let k=0;$('swplay').textContent='■ Stop';$('swmsg').textContent='';
+for(let i=a;i<=b;i++)sws[i].c.forEach(j=>{const t=k++*SWMS,bi=i;setTimeout(()=>{if(swid!==id)return;swp=bi;swMark();swCh(j).n.forEach(n=>{tone(n);flash(keys[n],'demo')})},t)});
+setTimeout(()=>{if(swid===id)swStop()},k*SWMS+300)}
+function swAdd(k){swStop();sws.push(nb(k));swSave();swRender();$('swmsg').textContent=`Added ${BT[k][0]}: ${BT[k][3]}`}
+function swMove(i,d){const j=i+d;if(j<0||j>=sws.length)return;swStop();[sws[i],sws[j]]=[sws[j],sws[i]];swSave();swRender()}
+function swDup(i){swStop();sws.splice(i+1,0,{k:sws[i].k,c:sws[i].c.slice()});swSave();swRender()}
+function swDel(i){swStop();sws.splice(i,1);swSave();swRender()}
+function swTpl(i){swStop();swt=i;sws=STEMP[i].s.map(nb);$('swmsg').textContent='';swSave();swBuild();swRender()}
+function swRender(){const kid=mode==='kid',L=$('swlist');L.innerHTML='';
+if(!sws.length){const p=document.createElement('p');p.textContent='No bricks yet. Pick a template or add a brick.';L.append(p)}
+sws.forEach((b,i)=>{const T=BT[b.k],d=document.createElement('div');d.className='bk';d.style.setProperty('--bc',`hsl(${T[2]} 55% 48%)`);
+const h=document.createElement('div');h.className='bkh';
+const nm=document.createElement('strong');nm.textContent=T[0];h.append(nm);
+const ac2=document.createElement('div');ac2.className='sm bact';
+[['▶','Play this brick',()=>swPlay(i,i)],['↑','Move up',()=>swMove(i,-1)],['↓','Move down',()=>swMove(i,1)],['Copy','Copy this brick',()=>swDup(i)],['✕','Remove',()=>swDel(i)]].forEach(([t,l,f])=>{const x=document.createElement('button');x.className='btn';x.textContent=t;x.setAttribute('aria-label',`${l}: ${T[0]}`);x.onclick=f;ac2.append(x)});
+h.append(ac2);d.append(h);
+const cs=document.createElement('div');cs.className='sm bch';
+b.c.forEach((j,x)=>{const c=document.createElement('button');c.className='btn';const ch=swCh(j);c.textContent=ch.name;
+if(!kid){const s=document.createElement('small');s.textContent=' '+CH[j][0];c.append(s)}
+c.setAttribute('aria-label',`Chord ${x+1} of ${T[0]}: ${ch.name}. Tap to change.`);
+c.onclick=()=>{swStop();b.c[x]=(b.c[x]+1)%CH.length;swSave();swRender()};cs.append(c)});
+d.append(cs);L.append(d)});
+swMark()}
+function swBuild(){const kid=mode==='kid',T=STEMP[swt];
+$('swintro').textContent=kid?'Build a song from bricks! Each brick is one part of a song. Pick a template or add your own bricks, then press Play song.':'Arrange a song from sections. Start from a template or add bricks, tap any chord to change it, and press Play song.';
+const fill=(id,items,on,f)=>{const R=$(id);R.innerHTML='';items.forEach((t,i)=>{const b=document.createElement('button');b.className='btn';b.textContent=t;if(on!==null)b.setAttribute('aria-pressed',on(i));b.onclick=()=>f(i);R.append(b)})};
+fill('swtl',STEMP.map(x=>x.t),i=>i===swt,swTpl);
+fill('swkeys',ROOTS.map(r=>r[0]),i=>i===swk,i=>{swStop();swk=i;swSave();swBuild();swRender()});
+fill('swadd',Object.keys(BT).map(k=>BT[k][0]),null,i=>swAdd(Object.keys(BT)[i]));
+$('swnote').textContent=T?`Why it works: ${T.t} (${T.by})`:'';
+$('swwhy').textContent=T?`${kid?T.kid:T.adult} Try it: ${T.try}`:''}
+function swStart(){qClose();rdClose();lbClose();thClose();swz=1;$('lc').hidden=true;$('sw').hidden=false;$('pl').hidden=true;$('swb').setAttribute('aria-pressed','true');
+Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});swBuild();swRender()}
+function swClose(){swz=0;swStop();$('sw').hidden=true;$('lc').hidden=false;$('swb').setAttribute('aria-pressed','false')}
+$('swplay').onclick=()=>{if(swid)swStop();else swPlay(0,sws.length-1)};
+$('swclr').onclick=()=>{swStop();sws=[];swt=-1;swSave();swBuild();swRender();$('swmsg').textContent=''};
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
 const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
 g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+1.2);
@@ -285,10 +367,10 @@ BLACK.forEach(([i,p])=>{const b=mk('b',i);b.style.left=`calc(var(--kw)*${p} - va
 function flash(el,c){el.classList.add(c);setTimeout(()=>el.classList.remove(c),350)}
 function say(t){$('msg').textContent=t}
 const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
-function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();thClose();save();const L=LESSONS[n],kid=mode==='kid';
+function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();thClose();swClose();save();const L=LESSONS[n],kid=mode==='kid';
 say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
-function press(i){if(rdz){rdPress(i);return}if(lbz||thz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
+function press(i){if(rdz){rdPress(i);return}if(lbz||thz||swz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
 const grp=[].concat(L.s[step]);
 if(grp.includes(i)){flash(el,'good');got.add(i);
@@ -338,6 +420,7 @@ $('hb').onclick=hear;
 $('thb').onclick=()=>{if(thz){thClose();render()}else{stopDemo();run=0;thStart()}};
 $('lbb').onclick=()=>{if(lbz){lbClose();render()}else{stopDemo();run=0;lbStart()}};
 $('rsb').onclick=()=>{if(rdz){rdClose();render()}else{stopDemo();run=0;rdStart()}};
+$('swb').onclick=()=>{if(swz){swClose();render()}else{stopDemo();run=0;swStart()}};
 $('qb').onclick=()=>{if(qz){qClose();render()}else{stopDemo();run=0;qStart()}};
 $('rb').onclick=()=>{rh=!rh;$('rb').textContent=`Rhythm: ${rh?'on':'off'}`;$('rb').setAttribute('aria-pressed',rh);$('tm').hidden=$('sb').hidden=!rh;tm();go(cur);if(rh)say('Press Start, listen to the count-in, then play on each beat.')};
 $('tm').onclick=()=>{ti=(ti+1)%TEMPO.length;tm();run=0};

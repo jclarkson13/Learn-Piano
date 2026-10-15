@@ -41,7 +41,10 @@ Open `index.html` in any modern browser, including Safari on iPhone and iPad.
 - Chord library: pick any of 12 roots and a chord type (major, minor, diminished, augmented, sus2, sus4, major 7, minor 7, dominant 7). The keys light up, the chord plays, and notes are spelled correctly (for example E major is E G♯ B). Kids mode shows major, minor, and dominant 7 with a mood word.
 - Read the staff: a treble-clef note appears and you tap the matching key. Ten notes per round, three levels (C to G, C to C, all keys), scored on first-try accuracy. The clef symbol is a Unicode character, so it depends on the fonts on the device.
 - Mode ear quiz: five questions. The app plays a scale starting on C and you pick the mode (Kids mode uses four moods: happy, sad, dark, dreamy; Adults mode uses all seven modes). The keys still make sound during the quiz.
+- Songwriting: build a song from section "bricks" (Intro, Verse, Pre-chorus, Chorus, Bridge, Solo, Riff, Outro). Start from a template (Yesterday, Hey Jude, Satisfaction, Man in the Box, Heart of Gold, Pancho and Lefty) or add bricks yourself. Each brick has four to eight chords shown in the chosen key (all 12 keys) with Roman numerals in Adults mode. Tap a chord to change it, use the arrows to reorder, Copy to repeat a brick, and Play song to hear the whole arrangement while the keys light up. Each template has a "why it works" note and a "try it" suggestion. The arrangement is saved in the browser.
 - "Hear it" plays the lesson while the keys light up. Finger numbers appear on lessons that fit one hand position (C to G).
+
+- Songwriting templates: the section orders are simplified from memory and the chords are generic starter progressions, not the original songs' chords. Check the structures against the recordings before teaching from them. Templates live in the `STEMP` array and brick types in `BT` (name, default chords, color, description). Chords are indexes into `CH` (I, ii, iii, IV, V, vi).
 
 ## Adding lessons
 
