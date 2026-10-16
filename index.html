@@ -78,6 +78,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .bact,.bch{display:flex;flex-wrap:wrap;gap:6px}
 .bch{margin-top:8px}
 .bch small{color:var(--muted);font-weight:500}
+#swcur{font-family:var(--head);font-size:44px;line-height:1.1;margin:8px 0 4px}
 </style>
 </head>
 <body>
@@ -130,6 +131,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 </section>
 <section class="card" id="sw" hidden>
 <h2>Songwriting</h2>
+<div id="swed">
 <p id="swintro"></p>
 <h3>Start from a template</h3>
 <div class="row sm" id="swtl"></div>
@@ -142,8 +144,16 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 <h3>Your song</h3>
 <div id="swlist"></div>
 <p class="msg" id="swmsg" aria-live="polite"></p>
-<div class="row" id="swact"><button class="btn primary" id="swplay">▶ Play song</button><button class="btn" id="swclr">Clear</button></div>
+<div class="row" id="swact"><button class="btn primary" id="swplay">▶ Play song</button><button class="btn" id="swpab">🎹 Play along</button><button class="btn" id="swclr">Clear</button></div>
 <p id="swfine"></p>
+</div>
+<div id="swpa" hidden>
+<p class="msg" id="swpos"></p>
+<p id="swcur"></p>
+<p id="swnext"></p>
+<p class="msg" id="swpmsg" aria-live="polite"></p>
+<div class="row sm"><button class="btn" id="swhear">Hear chord</button><button class="btn" id="swskip">Skip</button><button class="btn" id="swroot" aria-pressed="false">Root note only</button><button class="btn" id="swstopa">Stop</button></div>
+</div>
 </section>
 <div class="nav"><button class="btn" id="sl">◀ Lower</button><button class="btn" id="sr">Higher ▶</button></div>
 <div class="kbwrap" id="kbw"><div class="kb" id="kb"></div></div>
@@ -357,9 +367,48 @@ $('swwhy').textContent=T?`${kid?T.kid:T.adult} Try it: ${T.try}`:'';
 $('swfine').textContent=(T?T.cn+' ':'')+'Section orders are simplified. Tap any chord to change it.'}
 function swStart(){qClose();rdClose();lbClose();thClose();swz=1;$('lc').hidden=true;$('sw').hidden=false;$('pl').hidden=true;$('swb').setAttribute('aria-pressed','true');
 Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});$('kbw').scrollTo({left:0,behavior:'smooth'});swBuild();swRender()}
-function swClose(){swz=0;swStop();$('sw').hidden=true;$('lc').hidden=false;$('swb').setAttribute('aria-pressed','false')}
+function swClose(){swz=0;if(swpa)swPaEnd();swStop();$('sw').hidden=true;$('lc').hidden=false;$('swb').setAttribute('aria-pressed','false')}
 $('swplay').onclick=()=>{if(swid)swStop();else swPlay(0,sws.length-1)};
 $('swclr').onclick=()=>{swStop();sws=[];swt=-1;swSave();swBuild();swRender();$('swmsg').textContent=''};
+
+let swpa=0,swi=0,swst=[],swgot=new Set(),swmiss=0,swroot=0,swgt=0;
+const swPaMsg=t=>{$('swpmsg').textContent=t};
+const swPaNeed=()=>{const n=swCh(swst[swi].t).n;return swroot?[n[0]]:n};
+const swClr=()=>Object.values(keys).forEach(k=>{k.classList.remove('hint','got');delete k.dataset.f});
+function swPaShow(){const s=swst[swi],B=sws[s.bi],ch=swCh(s.t),need=swPaNeed(),nx=swst[swi+1];
+swp=s.bi;swMark();
+$('swpos').textContent=`${BT[B.k][0]}, chord ${s.ci+1} of ${B.c.length}. Step ${swi+1} of ${swst.length}.`;
+$('swcur').textContent=ch.name;
+$('swnext').textContent=nx?`Next: ${swCh(nx.t).name}`:'This is the last chord.';
+swClr();need.forEach(n=>keys[n].classList.add(swgot.has(n)?'got':'hint'));
+const wi=WHITE.findIndex(w=>w>=Math.min(...need));
+$('kbw').scrollTo({left:Math.max(0,Math.min(5,wi-.5))*$('kb').offsetWidth/15,behavior:'smooth'})}
+function swPaAsk(){const kid=mode==='kid',need=swPaNeed(),nm=need.map(n=>NOTES[n][0]).join(', ');
+swPaMsg(need.length>1?(kid?`Tap ${nm} together!`:`Play ${nm} together. Quick one-after-another also counts.`):(kid?'Tap the glowing key.':`Play ${nm}.`))}
+function swPaStart(){if(!sws.length){$('swmsg').textContent='Add a brick first.';return}
+swStop();swpa=1;swst=[];sws.forEach((b,i)=>b.c.forEach((t,j)=>swst.push({bi:i,ci:j,t})));
+swi=0;swmiss=0;swgot.clear();swroot=mode==='kid'?1:0;
+$('swed').hidden=true;$('swpa').hidden=false;$('swstopa').textContent='Stop';$('swroot').setAttribute('aria-pressed',swroot?'true':'false');
+$('swhear').disabled=false;$('swskip').disabled=false;$('swroot').disabled=false;
+swPaShow();swPaAsk()}
+function swPaEnd(){swpa=0;clearTimeout(swgt);swgot.clear();swp=-1;swClr();$('swpa').hidden=true;$('swed').hidden=false;swMark()}
+function swPaNext(){swgot.clear();clearTimeout(swgt);swi++;if(swi>=swst.length){swPaDone();return}swPaShow();swPaAsk()}
+function swPaDone(){const kid=mode==='kid';swClr();swp=-1;swMark();
+$('swpos').textContent='';$('swcur').textContent=kid?'All done!':'Song complete';$('swnext').textContent='';
+swPaMsg(kid?`You played the whole song! ${swmiss} oops.`:`You played all ${swst.length} chords. ${swmiss} missed ${swmiss===1?'note':'notes'}.`);
+$('swhear').disabled=true;$('swskip').disabled=true;$('swroot').disabled=true;$('swstopa').textContent='Back to editing'}
+function swPaPress(i){tone(i);if(swi>=swst.length)return;const need=swPaNeed(),el=keys[i],kid=mode==='kid';
+if(need.includes(i)){flash(el,'good');swgot.add(i);clearTimeout(swgt);
+if(swgot.size===need.length){const n=swi;swPaNext();if(swpa&&swi<swst.length)swPaMsg((kid?['Yes!','Nice!','You got it!'][n%3]:'Correct.')+' '+$('swpmsg').textContent)}
+else{swPaMsg(kid?'Good! Add the other glowing keys.':`${need.length-swgot.size} more to go.`);swPaShow();
+swgt=setTimeout(()=>{swgot.clear();swPaMsg(kid?'Time ran out. Try all the keys again!':'Time ran out. Play the chord again.');swPaShow()},2000)}}
+else{swmiss++;swgot.clear();clearTimeout(swgt);flash(el,'bad');
+swPaMsg(kid?`Oops, that was ${NOTES[i][0]}. Try the glowing keys!`:`That was ${NOTES[i][0]}. Look for ${need.map(n=>NOTES[n][0]).join(', ')}.`);swPaShow()}}
+$('swpab').onclick=swPaStart;
+$('swstopa').onclick=swPaEnd;
+$('swhear').onclick=()=>{if(swi<swst.length)swCh(swst[swi].t).n.forEach(n=>{tone(n);flash(keys[n],'demo')})};
+$('swskip').onclick=()=>{if(swi<swst.length)swPaNext()};
+$('swroot').onclick=()=>{swroot^=1;swgot.clear();clearTimeout(swgt);$('swroot').setAttribute('aria-pressed',swroot?'true':'false');swPaShow();swPaAsk()};
 function tone(i){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
 const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type='triangle';o.frequency.value=NOTES[i][1];
 g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+1.2);
@@ -384,7 +433,7 @@ const list=g=>[].concat(g).map(n=>NOTES[n][0]).join(', ');
 function go(n){cur=n;step=0;miss=0;done=false;clearTimeout(gt);got.clear();stopDemo();rs=0;run=0;qClose();rdClose();lbClose();thClose();swClose();save();const L=LESSONS[n],kid=mode==='kid';
 say([].concat(L.s[0]).length>1?(kid?`Tap ${list(L.s[0])} together!`:`Play ${list(L.s[0])} together. Quick one-after-another also counts.`):(kid?'Ready? Tap the glowing key.':'Play the highlighted key.'));render();view()}
 
-function press(i){if(rdz){rdPress(i);return}if(lbz||thz||swz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
+function press(i){if(rdz){rdPress(i);return}if(swz&&swpa){swPaPress(i);return}if(lbz||thz||swz){tone(i);flash(keys[i],'good');return}if(qz){tone(i);flash(keys[i],'good');return}if(demo)stopDemo();tl.t='';tone(i);const el=keys[i],L=LESSONS[cur],kid=mode==='kid';
 if(done){flash(el,'good');return}
 const grp=[].concat(L.s[step]);
 if(grp.includes(i)){flash(el,'good');got.add(i);
